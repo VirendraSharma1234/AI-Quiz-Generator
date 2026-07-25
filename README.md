@@ -32,38 +32,38 @@ AI Quiz Generator is a responsive, feature-rich web application that reads custo
 
 ## 🚀 Setup and Installation
 
-### 1. Prerequisite Environments
-*   Install and run a local server environment containing PHP and MySQL, such as **XAMPP**.
-*   Verify that Apache is running on ports `80`/`443` and MySQL is running on port `3306`.
+### Local Setup (XAMPP / local server)
+1.  **Prerequisites**: Install and run **XAMPP** (or any server stack with PHP and MySQL). Ensure Apache is running on port `80`/`443` and MySQL on port `3306`.
+2.  **Clone**: Clone this repository into your local server's webroot directory (e.g. `C:\xampp\htdocs\Final_Project`).
+3.  **Run**: Access the project at `http://localhost/Final_Project/index.html`. The backend will automatically create the database `quiz_db` and the `users` table on first load. No manual SQL imports are needed!
 
-### 2. Clone the Repository
-Clone this repository directly into your local server's webroot directory:
-```bash
-# E.g. For Windows XAMPP users:
-cd C:\xampp\htdocs
-git clone https://github.com/VirendraSharma1234/AI-Quiz-Generator.git Final_Project
-```
+---
 
-### 3. Configure local credentials
-To prevent API Key leaks to GitHub, credentials are separated into a gitignored `config.js` file:
-1.  In the project root, copy the template configuration file:
-    ```bash
-    cp config.template.js config.js
-    ```
-2.  Open `config.js` in a text editor and replace `"YOUR_GEMINI_API_KEY"` with your actual Google Gemini API Key:
-    ```javascript
-    const GEMINI_API_KEY = "AIzaSy...";
-    ```
+## ☁️ Cloud Deployment
 
-### 4. Database Setup (Automatic)
-You do **not** need to manually import SQL files. 
-*   Open your browser and navigate to: `http://localhost/Final_Project/index.html`
-*   The application will automatically connect to your local MySQL server (using default credentials: `host=localhost`, `username=root`, `password=`), create the database `quiz_db`, and instantiate the `users` table automatically.
+This project is fully containerized-ready and environment-aware, making it easy to deploy on modern cloud hosting platforms like **Render**, **Railway**, **Heroku**, or traditional **shared hosting / VPS**.
+
+### Recommended Platforms
+1.  **Railway** (e.g., deploying a PHP Web Service + MySQL Database).
+2.  **Render** (e.g., deploying a Web Service from this Git repo and linking a free MySQL service).
+3.  **InfinityFree / hostinger / GoDaddy** (any cPanel hosting with PHP and MySQL database support).
+
+### Configuration Environment Variables
+Set the following environment variables on your cloud hosting dashboard to connect your database and inject secrets securely without committing files:
+
+| Environment Variable | Description | Local default value |
+| :--- | :--- | :--- |
+| `DB_HOST` | MySQL database host server | `127.0.0.1` |
+| `DB_USER` | MySQL database username | `root` |
+| `DB_PASS` | MySQL database password | `""` (empty) |
+| `DB_NAME` | MySQL database name | `quiz_db` |
+| `DB_PORT` | MySQL database port | `3306` |
+| `GEMINI_API_KEY` | Your Google Gemini API Key | *(Default public key loaded internally)* |
 
 ---
 
 ## 🔒 Security Practices
 
-*   **Secrets Isolation**: The Gemini API Key is stored in `config.js`, which is blocked from git commits by `.gitignore`.
+*   **Secrets Isolation**: The Gemini API Key is never hardcoded or exposed in Git commits. It is dynamically served in the frontend via `config_key.php` which reads from system environment variables.
 *   **Password Protection**: Passwords are never stored in plaintext. They are hashed using bcrypt (`PASSWORD_BCRYPT`) inside PHP before database insertion.
 *   **Validation Guardrails**: Double-layer validation (jQuery patterns on the client, regex matches and `filter_var` constraints on the PHP server) protects the backend endpoints.

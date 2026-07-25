@@ -1,12 +1,13 @@
 <?php
-// Database connection configuration
-$host = "127.0.0.1";
-$username = "root";
-$password = "";
-$dbname = "quiz_db";
+// Database connection configuration (supports Environment Variables for Cloud Deployment)
+$host = getenv('DB_HOST') ?: "127.0.0.1";
+$username = getenv('DB_USER') ?: "root";
+$password = getenv('DB_PASS') !== false ? getenv('DB_PASS') : "";
+$dbname = getenv('DB_NAME') ?: "quiz_db";
+$port = getenv('DB_PORT') ?: "3306";
 
 // 1. Connect to MySQL Server (without selecting DB first)
-$conn = new mysqli($host, $username, $password);
+$conn = new mysqli($host, $username, $password, null, $port);
 
 // Check connection
 if ($conn->connect_error) {
