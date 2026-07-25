@@ -2,7 +2,7 @@
 header('Content-Type: application/json');
 require_once 'config.php';
 
-// Retrieve and decode JSON input
+
 $input = json_decode(file_get_contents("php://input"), true);
 
 $name = isset($input['name']) ? trim($input['name']) : (isset($_POST['name']) ? trim($_POST['name']) : '');
@@ -16,7 +16,7 @@ if (empty($name) || empty($email) || empty($password)) {
 
 $emailLower = strtolower($email);
 
-// Use prepared statement to check if email already exists
+
 $checkStmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
 $checkStmt->bind_param("s", $emailLower);
 $checkStmt->execute();
@@ -30,10 +30,10 @@ if ($checkStmt->num_rows > 0) {
 }
 $checkStmt->close();
 
-// Hash password
+
 $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 
-// Use prepared statement to insert new user
+
 $insertStmt = $conn->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
 $insertStmt->bind_param("sss", $name, $emailLower, $hashedPassword);
 

@@ -1,37 +1,37 @@
 body {
     color-scheme: light;
-    --bg: #eef2ff;
+    --bg: 
     --bg-accent: rgba(67, 97, 238, 0.14);
     --surface: rgba(255, 255, 255, 0.82);
-    --surface-solid: #ffffff;
-    --surface-strong: #f7f8fc;
-    --text: #132238;
-    --muted: #5c6b82;
+    --surface-solid: 
+    --surface-strong: 
+    --text: 
+    --muted: 
     --border: rgba(19, 34, 56, 0.08);
     --shadow: 0 24px 60px rgba(19, 34, 56, 0.12);
-    --primary: #3f5efb;
-    --primary-hover: #3047d1;
+    --primary: 
+    --primary-hover: 
     --primary-soft: rgba(63, 94, 251, 0.12);
-    --selected: #3f5efb;
-    --selected-text: #ffffff;
+    --selected: 
+    --selected-text: 
 }
 
 [data-theme="dark"] {
     color-scheme: dark;
-    --bg: #09111f;
+    --bg: 
     --bg-accent: rgba(89, 122, 255, 0.18);
     --surface: rgba(13, 20, 34, 0.86);
-    --surface-solid: #10192b;
-    --surface-strong: #0d1626;
-    --text: #eef3ff;
-    --muted: #9fb0cb;
+    --surface-solid: 
+    --surface-strong: 
+    --text: 
+    --muted: 
     --border: rgba(255, 255, 255, 0.08);
     --shadow: 0 24px 60px rgba(0, 0, 0, 0.34);
-    --primary: #8ba3ff;
-    --primary-hover: #b2c0ff;
+    --primary: 
+    --primary-hover: 
     --primary-soft: rgba(139, 163, 255, 0.16);
-    --selected: #8ba3ff;
-    --selected-text: #0b1020;
+    --selected: 
+    --selected-text: 
 }
 
 body {
@@ -41,7 +41,7 @@ body {
     background:
         radial-gradient(circle at top left, var(--bg-accent), transparent 36%),
         radial-gradient(circle at bottom right, rgba(120, 87, 255, 0.14), transparent 28%),
-        linear-gradient(180deg, var(--bg) 0%, color-mix(in srgb, var(--bg) 85%, #ffffff 15%) 100%);
+        linear-gradient(180deg, var(--bg) 0%, color-mix(in srgb, var(--bg) 85%, 
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -123,7 +123,7 @@ input.form-control {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 70%, #7c4dff 30%));
+    background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 70%, 
     border: none;
     box-shadow: 0 14px 28px rgba(63, 94, 251, 0.22);
 }
@@ -263,17 +263,17 @@ input.form-control {
     font-weight: 700;
 }
 
-#loading-section,
-#quiz-section,
-#result-section {
+
+
+
     display: none;
 }
 
-#question-text {
+
     line-height: 1.45;
 }
 
-/* Navigation Grid styles */
+
 .nav-btn {
     width: 40px;
     height: 40px;
@@ -315,7 +315,7 @@ input.form-control {
     color: var(--muted);
 }
 
-/* Review Accordion styles */
+
 .review-card {
     border: 1px solid var(--border);
     background: var(--surface);
@@ -358,16 +358,16 @@ input.form-control {
 }
 
 .review-option-item.correct {
-    border-color: #2ec4b6;
+    border-color: 
     background-color: rgba(46, 196, 182, 0.1);
-    color: #2ec4b6;
+    color: 
     font-weight: 600;
 }
 
 .review-option-item.incorrect {
-    border-color: #e71d36;
+    border-color: 
     background-color: rgba(231, 29, 54, 0.1);
-    color: #e71d36;
+    color: 
     font-weight: 600;
 }
 
@@ -381,8 +381,8 @@ input.form-control {
     color: var(--muted);
 }
 
-/* History Section styles */
-#history-section {
+
+
     background: var(--surface);
 }
 
@@ -410,20 +410,20 @@ input.form-control {
 
 .history-score-badge.high {
     background-color: rgba(46, 196, 182, 0.12);
-    color: #2ec4b6;
+    color: 
 }
 
 .history-score-badge.medium {
     background-color: rgba(255, 159, 67, 0.12);
-    color: #ff9f43;
+    color: 
 }
 
 .history-score-badge.low {
     background-color: rgba(231, 29, 54, 0.12);
-    color: #e71d36;
+    color: 
 }
 
-/* Switch Cards for Settings */
+
 .settings-switch-card {
     padding: 14px 18px;
     border-radius: 16px;
@@ -441,18 +441,18 @@ input.form-control {
     border-color: var(--primary);
 }
 
-/* Practice Mode Option Feedback States */
+
 .quiz-option.correct-choice {
-    border-color: #2ec4b6 !important;
+    border-color: 
     background-color: rgba(46, 196, 182, 0.1) !important;
-    color: #2ec4b6 !important;
+    color: 
     font-weight: 600;
 }
 
 .quiz-option.incorrect-choice {
-    border-color: #e71d36 !important;
+    border-color: 
     background-color: rgba(231, 29, 54, 0.1) !important;
-    color: #e71d36 !important;
+    color: 
     font-weight: 600;
 }
 
@@ -463,8 +463,8 @@ input.form-control {
 
 
 
-/* Auth Styles */
-#auth-section {
+
+
     max-width: 480px;
     margin: 0 auto;
 }
@@ -486,7 +486,7 @@ input.form-control {
     border-bottom-color: var(--primary) !important;
 }
 
-#user-header {
+
     background: var(--surface);
     border: 1px solid var(--border);
     backdrop-filter: blur(16px);

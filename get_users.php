@@ -2,7 +2,7 @@
 header('Content-Type: application/json');
 require_once 'config.php';
 
-// Select id, name, email, and password hash
+
 $sql = "SELECT id, name, email, password, created_at FROM users ORDER BY id ASC";
 $result = $conn->query($sql);
 
@@ -18,7 +18,7 @@ while ($row = $result->fetch_assoc()) {
         "id" => $row['id'],
         "name" => $row['name'],
         "email" => $row['email'],
-        "password" => $row['password'], // Show the hash for data table viewing verification
+        "password" => $row['password'], 
         "created_at" => $row['created_at']
     ];
 }

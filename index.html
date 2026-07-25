@@ -23,7 +23,7 @@
         <p class="hero-subtitle mb-0">Generate instant quizzes from your documents or text with a cleaner, faster workflow.</p>
     </div>
 
-    <!-- User Greeting Header -->
+    
     <div id="user-header" class="d-none justify-content-between align-items-center mb-4 p-3 rounded card flex-row">
         <span class="fw-semibold fs-5">Welcome, <span id="user-display-name">Guest</span>! 👋</span>
         <div>
@@ -32,7 +32,7 @@
         </div>
     </div>
 
-    <!-- Auth Section (Login / Sign Up) -->
+    
     <div id="auth-section" class="card p-4 p-md-5">
         <div id="auth-status-message" class="alert d-none mb-4" role="alert"></div>
         
@@ -41,7 +41,7 @@
             <button id="tab-register" class="btn btn-link text-muted fw-bold text-decoration-none" type="button">Sign Up</button>
         </div>
 
-        <!-- Login Form -->
+        
         <form id="login-form" novalidate>
             <div class="mb-4 text-start">
                 <label class="form-label fw-semibold">Email Address</label>
@@ -56,7 +56,7 @@
             <button type="submit" class="btn btn-primary w-100 py-3 fs-5">Log In ✨</button>
         </form>
 
-        <!-- Register Form -->
+        
         <form id="register-form" class="d-none">
             <div class="mb-4 text-start">
                 <label class="form-label fw-semibold">Full Name</label>
@@ -74,7 +74,7 @@
         </form>
     </div>
 
-    <!-- Dashboard Section (Hidden by default until logged in) -->
+    
     <div id="dashboard-section" class="d-none">
         <div id="input-section" class="card p-4 p-md-5">
         <div id="status-message" class="alert d-none mb-4" role="alert"></div>
@@ -228,7 +228,7 @@
         <div class="card text-start mb-4 p-4 review-card">
             <h4 class="fw-bold mb-3">Review Answers</h4>
             <div id="review-accordion" class="accordion accordion-flush">
-                <!-- Dynamically populated -->
+                
             </div>
         </div>
 
@@ -254,7 +254,7 @@
             <button id="restart-quiz-btn" class="btn btn-primary btn-lg px-5">Try Another Quiz</button>
         </div>
     </div>
-    </div><!-- End dashboard-section -->
+    </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -269,7 +269,7 @@
 
 
 
-<!-- Registered Users List Modal -->
+
 <div class="modal fade" id="users-list-modal" tabindex="-1" aria-labelledby="usersListModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content text-start border-0 shadow-lg" style="background: var(--surface); color: var(--text); border-radius: 20px; backdrop-filter: blur(16px);">
@@ -289,7 +289,7 @@
                             </tr>
                         </thead>
                         <tbody id="users-table-body">
-                            <!-- Populated dynamically -->
+                            
                         </tbody>
                     </table>
                 </div>

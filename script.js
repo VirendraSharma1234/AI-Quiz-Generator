@@ -1,5 +1,5 @@
 $(document).ready(function () {
-  // GEMINI_API_KEY is loaded globally from config.js (which is gitignored to protect secrets)
+  
   const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
 
   function getGeminiApiUrl(model) {
@@ -1091,6 +1091,6 @@ User question: ${rawQuestion}
     location.reload();
   });
 
-  // Initial check on load
+  
   checkAuthState();
 });

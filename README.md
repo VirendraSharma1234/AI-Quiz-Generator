@@ -41,12 +41,12 @@ AI Quiz Generator is a responsive, feature-rich web application that reads custo
 
 ## ☁️ Cloud Deployment
 
-This project is fully containerized-ready and environment-aware, making it easy to deploy on modern cloud hosting platforms like **Render**, **Railway**, **Heroku**, or traditional **shared hosting / VPS**.
+This project is fully containerized and environment-aware, making it easy to deploy on modern cloud hosting platforms like **Render**, **Railway**, **Heroku**, or traditional **shared hosting / VPS**.
 
 ### Recommended Platforms
-1.  **Railway** (e.g., deploying a PHP Web Service + MySQL Database).
-2.  **Render** (e.g., deploying a Web Service from this Git repo and linking a free MySQL service).
-3.  **InfinityFree / hostinger / GoDaddy** (any cPanel hosting with PHP and MySQL database support).
+1.  **Render**: Deploy as a **Web Service** using the included `Dockerfile` (choose **Docker** as the Runtime environment).
+2.  **Railway**: Deploy directly as a Docker Web Service + MySQL Database.
+3.  **InfinityFree / hostinger / GoDaddy**: Copy files directly to your cPanel's public web directory.
 
 ### Configuration Environment Variables
 Set the following environment variables on your cloud hosting dashboard to connect your database and inject secrets securely without committing files:
