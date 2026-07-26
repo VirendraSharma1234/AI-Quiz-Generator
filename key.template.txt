@@ -1,2 +1,0 @@
-# Place your Google Gemini API Key in this file (without quotes or extra spaces)
-YOUR_GEMINI_API_KEY

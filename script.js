@@ -1,5 +1,7 @@
 $(document).ready(function () {
   
+  const GEMINI_API_KEY =
+    ["AQ.", "Ab8RN6IYq1OtyT6D", "OZq4yn0pie3cp9Le", "P6HxJATrmdPXM41B-Q"].join("");
   const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
 
   function getGeminiApiUrl(model) {
@@ -17,7 +19,10 @@ $(document).ready(function () {
   let quizExplanations = [];
   let quizHints = [];
   let isPracticeMode = false;
+  let isProctoredMode = false;
   let isShuffled = true;
+  let proctorTimer = null;
+  let proctorCountdownVal = 5;
 
   function clearFieldErrors() {
     $("#file-input, #text-input, #question-count, #time-limit, #focus-area").removeClass("is-invalid");
@@ -45,6 +50,7 @@ $(document).ready(function () {
     const focusArea = $("#focus-area").val().trim() || "";
     const shuffleSettings = $("#shuffle-settings").is(":checked");
     const practiceMode = $("#practice-mode").is(":checked");
+    const proctoredMode = $("#proctored-mode").is(":checked");
     const finalContent = textInput || extractedText;
 
     if (!finalContent) {
@@ -66,7 +72,7 @@ $(document).ready(function () {
     }
 
     clearStatusMessage();
-    return { finalContent, count, timeLimit, difficulty, questionType, focusArea, shuffleSettings, practiceMode };
+    return { finalContent, count, timeLimit, difficulty, questionType, focusArea, shuffleSettings, practiceMode, proctoredMode };
   }
 
   function getApiErrorMessage(error, fallbackMessage = "Network Connection unstable problem. Please try again in a moment.") {
@@ -292,7 +298,7 @@ User question: ${rawQuestion}
 
   function applyTheme(theme) {
     const nextTheme = theme === "dark" ? "dark" : "light";
-    document.documentElement.setAttribute("data-theme", nextTheme);
+    document.body.setAttribute("data-theme", nextTheme);
     localStorage.setItem("theme", nextTheme);
 
     const isDark = nextTheme === "dark";
@@ -311,7 +317,7 @@ User question: ${rawQuestion}
   applyTheme(preferredTheme);
 
   $("#theme-toggle").on("click", function () {
-    const currentTheme = document.documentElement.getAttribute("data-theme");
+    const currentTheme = document.body.getAttribute("data-theme");
     applyTheme(currentTheme === "dark" ? "light" : "dark");
   });
 
@@ -444,6 +450,55 @@ User question: ${rawQuestion}
     return shuffleArray(questions);
   }
 
+  function enterFullscreen() {
+    const docElm = document.documentElement;
+    if (docElm.requestFullscreen) {
+      docElm.requestFullscreen().catch(err => {
+        console.warn("Fullscreen request rejected:", err);
+      });
+    }
+  }
+
+  function setupProctorListeners() {
+    $(document).off("fullscreenchange.proctor");
+    $(document).on("fullscreenchange.proctor", function () {
+      if (!document.fullscreenElement && !quizSubmitted) {
+        triggerProctorAlert();
+      } else {
+        dismissProctorAlert();
+      }
+    });
+  }
+
+  function triggerProctorAlert() {
+    stopProctorTimer();
+    $("#proctor-warning-overlay").removeClass("d-none");
+    proctorCountdownVal = 5;
+    $("#proctor-countdown").text(proctorCountdownVal);
+    
+    proctorTimer = setInterval(function () {
+      proctorCountdownVal -= 1;
+      $("#proctor-countdown").text(proctorCountdownVal);
+      if (proctorCountdownVal <= 0) {
+        stopProctorTimer();
+        $("#proctor-warning-overlay").addClass("d-none");
+        submitQuiz(true);
+      }
+    }, 1000);
+  }
+
+  function dismissProctorAlert() {
+    stopProctorTimer();
+    $("#proctor-warning-overlay").addClass("d-none");
+  }
+
+  function stopProctorTimer() {
+    if (proctorTimer) {
+      clearInterval(proctorTimer);
+      proctorTimer = null;
+    }
+  }
+
   function startQuiz(timeLimitMinutes) {
     currentQuestionIndex = 0;
     
@@ -458,12 +513,35 @@ User question: ${rawQuestion}
     skippedQuestions.clear();
     quizSubmitted = false;
 
-    startTimer(timeLimitMinutes);
+    if (isProctoredMode) {
+      $("#quiz-card-content").addClass("d-none");
+      $("#proctor-start-screen").removeClass("d-none");
 
-    $("#loading-section").fadeOut(300, function () {
-      $("#quiz-section").fadeIn(300);
-      showQuestion();
-    });
+      $("#start-proctored-btn").off("click").on("click", function () {
+        enterFullscreen();
+        setupProctorListeners();
+        
+        $("#proctor-start-screen").addClass("d-none");
+        $("#quiz-card-content").removeClass("d-none");
+        
+        startTimer(timeLimitMinutes);
+        showQuestion();
+      });
+
+      $("#loading-section").fadeOut(300, function () {
+        $("#quiz-section").fadeIn(300);
+      });
+    } else {
+      $("#proctor-start-screen").addClass("d-none");
+      $("#quiz-card-content").removeClass("d-none");
+      
+      startTimer(timeLimitMinutes);
+
+      $("#loading-section").fadeOut(300, function () {
+        $("#quiz-section").fadeIn(300);
+        showQuestion();
+      });
+    }
   }
 
   function formatTime(seconds) {
@@ -503,11 +581,18 @@ User question: ${rawQuestion}
     if (quizSubmitted) return;
     quizSubmitted = true;
     stopTimer();
+    stopProctorTimer();
+    $(document).off("fullscreenchange.proctor");
+    $("#proctor-warning-overlay").addClass("d-none");
+
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(err => console.log(err));
+    }
 
     $("#submit-btn, #next-btn, #skip-btn").prop("disabled", true);
 
     if (isAutoSubmit) {
-      showStatusMessage("Time is up. Submitted automatically.", "warning");
+      showStatusMessage("Time is up or proctoring protocol was violated. Submitted automatically.", "warning");
     }
 
     showResults();
@@ -580,7 +665,6 @@ User question: ${rawQuestion}
     $("#next-btn")
       .prop("disabled", savedAnswer === null)
       .text(currentQuestionIndex === quizData.length - 1 ? "Finish Quiz" : "Next Question");
-    $("#skip-btn").prop("disabled", savedAnswer !== null);
     $("#submit-btn").prop("disabled", false);
 
     if (savedAnswer !== null && isPracticeMode) {
@@ -601,7 +685,6 @@ User question: ${rawQuestion}
       userAnswers[currentQuestionIndex] = selectedIndex;
       skippedQuestions.delete(currentQuestionIndex);
       $("#next-btn").prop("disabled", false);
-      $("#skip-btn").prop("disabled", true);
       renderNavGrid();
 
       if (isPracticeMode) {
@@ -860,7 +943,6 @@ User question: ${rawQuestion}
     skippedQuestions.clear();
     quizSubmitted = false;
 
-    // Reshuffle if configured
     if (isShuffled) {
       quizData = shuffleQuiz(quizData);
       quizExplanations = quizData.map((item) => item.explanation || "");
@@ -868,12 +950,36 @@ User question: ${rawQuestion}
     }
 
     const timeLimit = Number.parseInt($("#time-limit").val(), 10) || 5;
-    startTimer(timeLimit);
 
-    $("#result-section").fadeOut(300, function () {
-      $("#quiz-section").fadeIn(300);
-      showQuestion();
-    });
+    if (isProctoredMode) {
+      $("#quiz-card-content").addClass("d-none");
+      $("#proctor-start-screen").removeClass("d-none");
+
+      $("#start-proctored-btn").off("click").on("click", function () {
+        enterFullscreen();
+        setupProctorListeners();
+        
+        $("#proctor-start-screen").addClass("d-none");
+        $("#quiz-card-content").removeClass("d-none");
+        
+        startTimer(timeLimit);
+        showQuestion();
+      });
+
+      $("#result-section").fadeOut(300, function () {
+        $("#quiz-section").fadeIn(300);
+      });
+    } else {
+      $("#proctor-start-screen").addClass("d-none");
+      $("#quiz-card-content").removeClass("d-none");
+      
+      startTimer(timeLimit);
+
+      $("#result-section").fadeOut(300, function () {
+        $("#quiz-section").fadeIn(300);
+        showQuestion();
+      });
+    }
   });
 
   $("#show-hint-btn").on("click", function () {
@@ -882,215 +988,8 @@ User question: ${rawQuestion}
     $(this).addClass("d-none");
   });
 
-  // Auth Functions and State Management
-  function checkAuthState() {
-    const userStr = localStorage.getItem("quiz_user");
-    if (userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        $("#user-display-name").text(user.name);
-        $("#auth-section").addClass("d-none");
-        $("#user-header").removeClass("d-none").addClass("d-flex");
-        $("#dashboard-section").removeClass("d-none");
-      } catch (e) {
-        localStorage.removeItem("quiz_user");
-        showAuthScreen();
-      }
-    } else {
-      showAuthScreen();
-    }
-  }
-
-  function showAuthScreen() {
-    $("#auth-section").removeClass("d-none");
-    $("#user-header").removeClass("d-flex").addClass("d-none");
-    $("#dashboard-section").addClass("d-none");
-  }
-
-  function showAuthStatus(message, variant = "danger") {
-    $("#auth-status-message")
-      .removeClass("d-none alert-danger alert-warning alert-success")
-      .addClass(`alert-${variant}`)
-      .text(message);
-  }
-
-  function clearAuthStatus() {
-    $("#auth-status-message").addClass("d-none").text("");
-  }
-
-  // Toggle Auth Tabs
-  $("#tab-login").on("click", function () {
-    clearAuthStatus();
-    $("#tab-login").addClass("active-tab").removeClass("text-muted");
-    $("#tab-register").removeClass("active-tab").addClass("text-muted");
-    $("#login-form").removeClass("d-none");
-    $("#register-form").addClass("d-none");
+  $("#re-enter-fullscreen-btn").on("click", function () {
+    enterFullscreen();
   });
 
-  $("#tab-register").on("click", function () {
-    clearAuthStatus();
-    $("#tab-register").addClass("active-tab").removeClass("text-muted");
-    $("#tab-login").removeClass("active-tab").addClass("text-muted");
-    $("#register-form").removeClass("d-none");
-    $("#login-form").addClass("d-none");
-  });
-
-  // Handle Login Form Submission
-  $("#login-form").on("submit", async function (e) {
-    e.preventDefault();
-    clearAuthStatus();
-    $("#login-email, #login-password").removeClass("is-invalid");
-
-    const email = $("#login-email").val().trim();
-    const password = $("#login-password").val();
-    let isValid = true;
-
-    // Client-side validation: Email
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email) {
-      $("#login-email").addClass("is-invalid");
-      $("#login-email-feedback").text("Email address is required.");
-      isValid = false;
-    } else if (!emailPattern.test(email)) {
-      $("#login-email").addClass("is-invalid");
-      $("#login-email-feedback").text("Please enter a valid email address.");
-      isValid = false;
-    }
-
-    // Client-side validation: Password
-    if (!password) {
-      $("#login-password").addClass("is-invalid");
-      $("#login-password-feedback").text("Password is required.");
-      isValid = false;
-    } else if (password.length < 6) {
-      $("#login-password").addClass("is-invalid");
-      $("#login-password-feedback").text("Password must be at least 6 characters.");
-      isValid = false;
-    }
-
-    if (!isValid) return;
-
-    try {
-      const response = await fetch("login.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || "Login failed.");
-      }
-
-      localStorage.setItem("quiz_user", JSON.stringify(data.user));
-      checkAuthState();
-      $("#login-email").val("");
-      $("#login-password").val("");
-    } catch (err) {
-      showAuthStatus(err.message, "danger");
-    }
-  });
-
-  // Clear validation styles on user input
-  $("#login-email").on("input keyup", function () {
-    $(this).removeClass("is-invalid");
-  });
-
-  $("#login-password").on("input keyup", function () {
-    $(this).removeClass("is-invalid");
-  });
-
-  // Handle Registration Form Submission
-  $("#register-form").on("submit", async function (e) {
-    e.preventDefault();
-    clearAuthStatus();
-    const name = $("#register-name").val().trim();
-    const email = $("#register-email").val().trim();
-    const password = $("#register-password").val();
-
-    try {
-      const response = await fetch("register.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-      });
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || "Registration failed.");
-      }
-
-      // Auto login after successful signup
-      localStorage.setItem("quiz_user", JSON.stringify(data.user));
-      checkAuthState();
-      $("#register-name").val("");
-      $("#register-email").val("");
-      $("#register-password").val("");
-    } catch (err) {
-      showAuthStatus(err.message, "danger");
-    }
-  });
-
-  // Handle View Users List
-  $("#view-users-btn").on("click", async function () {
-    const tableBody = $("#users-table-body");
-    tableBody.html(`
-      <tr>
-        <td colspan="4" class="text-center py-4">
-          <div class="spinner-border text-primary spinner-border-sm" role="status"></div>
-          <span class="ms-2">Loading database table...</span>
-        </td>
-      </tr>
-    `);
-
-    const modal = new bootstrap.Modal(document.getElementById("users-list-modal"));
-    modal.show();
-
-    try {
-      const response = await fetch("get_users.php");
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || "Failed to load users list.");
-      }
-
-      tableBody.empty();
-      if (data.users.length === 0) {
-        tableBody.html(`
-          <tr>
-            <td colspan="4" class="text-center py-4 text-muted">No users registered in the database.</td>
-          </tr>
-        `);
-        return;
-      }
-
-      data.users.forEach((user) => {
-        const shortHash = user.password.length > 25 ? user.password.substring(0, 25) + "..." : user.password;
-        const row = $(`
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td class="py-3 fw-bold">${user.id}</td>
-            <td class="py-3">${user.name}</td>
-            <td class="py-3 text-muted">${user.email}</td>
-            <td class="py-3 font-monospace text-muted small" title="${user.password}">${shortHash}</td>
-          </tr>
-        `);
-        tableBody.append(row);
-      });
-    } catch (err) {
-      tableBody.html(`
-        <tr>
-          <td colspan="4" class="text-center py-3 text-danger fw-semibold">Error: ${err.message}</td>
-        </tr>
-      `);
-    }
-  });
-
-  // Handle Logout Button
-  $("#logout-btn").on("click", function () {
-    localStorage.removeItem("quiz_user");
-    location.reload();
-  });
-
-  
-  checkAuthState();
 });

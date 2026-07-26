@@ -23,59 +23,7 @@
         <p class="hero-subtitle mb-0">Generate instant quizzes from your documents or text with a cleaner, faster workflow.</p>
     </div>
 
-    
-    <div id="user-header" class="d-none justify-content-between align-items-center mb-4 p-3 rounded card flex-row">
-        <span class="fw-semibold fs-5">Welcome, <span id="user-display-name">Guest</span>! 👋</span>
-        <div>
-            <button id="view-users-btn" class="btn btn-sm btn-outline-primary px-3 me-2" type="button">View Users List 👥</button>
-            <button id="logout-btn" class="btn btn-sm btn-outline-danger px-3" type="button">Logout</button>
-        </div>
-    </div>
-
-    
-    <div id="auth-section" class="card p-4 p-md-5">
-        <div id="auth-status-message" class="alert d-none mb-4" role="alert"></div>
-        
-        <div class="auth-tabs d-flex justify-content-center gap-3 mb-4">
-            <button id="tab-login" class="btn btn-link active-tab fw-bold text-decoration-none" type="button">Login</button>
-            <button id="tab-register" class="btn btn-link text-muted fw-bold text-decoration-none" type="button">Sign Up</button>
-        </div>
-
-        
-        <form id="login-form" novalidate>
-            <div class="mb-4 text-start">
-                <label class="form-label fw-semibold">Email Address</label>
-                <input type="email" id="login-email" class="form-control" placeholder="name@example.com" required>
-                <div class="invalid-feedback" id="login-email-feedback">Please enter a valid email address.</div>
-            </div>
-            <div class="mb-4 text-start">
-                <label class="form-label fw-semibold">Password</label>
-                <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
-                <div class="invalid-feedback" id="login-password-feedback">Password must be at least 6 characters.</div>
-            </div>
-            <button type="submit" class="btn btn-primary w-100 py-3 fs-5">Log In ✨</button>
-        </form>
-
-        
-        <form id="register-form" class="d-none">
-            <div class="mb-4 text-start">
-                <label class="form-label fw-semibold">Full Name</label>
-                <input type="text" id="register-name" class="form-control" placeholder="John Doe" required>
-            </div>
-            <div class="mb-4 text-start">
-                <label class="form-label fw-semibold">Email Address</label>
-                <input type="email" id="register-email" class="form-control" placeholder="name@example.com" required>
-            </div>
-            <div class="mb-4 text-start">
-                <label class="form-label fw-semibold">Password</label>
-                <input type="password" id="register-password" class="form-control" placeholder="••••••••" required>
-            </div>
-            <button type="submit" class="btn btn-primary w-100 py-3 fs-5">Sign Up ✨</button>
-        </form>
-    </div>
-
-    
-    <div id="dashboard-section" class="d-none">
+    <div id="dashboard-section">
         <div id="input-section" class="card p-4 p-md-5">
         <div id="status-message" class="alert d-none mb-4" role="alert"></div>
 
@@ -129,7 +77,7 @@
         </div>
 
         <div class="row mb-4 g-3">
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="settings-switch-card">
                     <div class="form-check form-switch w-100 m-0 d-flex align-items-center justify-content-between">
                         <label class="form-check-label fw-semibold mb-0" for="shuffle-settings">Shuffle Quiz</label>
@@ -137,11 +85,19 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="settings-switch-card">
                     <div class="form-check form-switch w-100 m-0 d-flex align-items-center justify-content-between">
                         <label class="form-check-label fw-semibold mb-0" for="practice-mode">Practice Mode</label>
                         <input class="form-check-input ms-2" type="checkbox" id="practice-mode">
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="settings-switch-card">
+                    <div class="form-check form-switch w-100 m-0 d-flex align-items-center justify-content-between">
+                        <label class="form-check-label fw-semibold mb-0" for="proctored-mode">Proctored Exam</label>
+                        <input class="form-check-input ms-2" type="checkbox" id="proctored-mode">
                     </div>
                 </div>
             </div>
@@ -159,39 +115,51 @@
     </div>
 
     <div id="quiz-section" class="card p-4 p-md-5">
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-            <span id="question-progress" class="badge bg-secondary">Question 1 of 5</span>
-            <span id="time-remaining" class="badge bg-secondary">Time Left: 05:00</span>
-            <div class="progress flex-grow-1 mx-3" style="height: 10px;">
-                <div id="progress-bar" class="progress-bar bg-primary" style="width: 20%;"></div>
+        <div id="proctor-start-screen" class="text-center py-4 d-none">
+            <div class="warning-icon mb-4" style="font-size: 4.5rem; animation: proctorPulse 1.5s infinite;">🔒</div>
+            <h2 class="text-danger fw-bold mb-3">Proctored Exam Ready</h2>
+            <p class="fs-5 mb-4 text-muted mx-auto" style="max-width: 600px;">
+                This exam must be taken in <strong>Full Screen Mode</strong>. 
+                Exiting full screen, minimizing the window, or switching tabs will trigger a warning and automatically submit your answers after a 5-second countdown.
+            </p>
+            <button id="start-proctored-btn" class="btn btn-danger btn-lg px-5 py-3 fs-5 fw-bold shadow" type="button">Begin Proctored Exam 🚀</button>
+        </div>
+
+        <div id="quiz-card-content">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+                <span id="question-progress" class="badge bg-secondary">Question 1 of 5</span>
+                <span id="time-remaining" class="badge bg-secondary">Time Left: 05:00</span>
+                <div class="progress flex-grow-1 mx-3" style="height: 10px;">
+                    <div id="progress-bar" class="progress-bar bg-primary" style="width: 20%;"></div>
+                </div>
             </div>
-        </div>
 
-        <div id="question-nav-grid" class="d-flex flex-wrap gap-2 mb-4 justify-content-center"></div>
+            <div id="question-nav-grid" class="d-flex flex-wrap gap-2 mb-4 justify-content-center"></div>
 
-        <h3 id="question-text" class="mb-4">Loading question...</h3>
+            <h3 id="question-text" class="mb-4">Loading question...</h3>
 
-        <div id="options-container">
-        </div>
-
-        <div id="quiz-feedback-container" class="mt-4">
-            <div id="hint-box" class="alert alert-info d-none" role="alert">
-                <strong>Hint 💡:</strong> <span id="hint-text"></span>
+            <div id="options-container">
             </div>
-            <div id="explanation-box" class="alert alert-success d-none" role="alert">
-                <strong>Explanation 📖:</strong> <span id="explanation-text"></span>
+
+            <div id="quiz-feedback-container" class="mt-4">
+                <div id="hint-box" class="alert alert-info d-none" role="alert">
+                    <strong>Hint 💡:</strong> <span id="hint-text"></span>
+                </div>
+                <div id="explanation-box" class="alert alert-success d-none" role="alert">
+                    <strong>Explanation 📖:</strong> <span id="explanation-text"></span>
+                </div>
             </div>
-        </div>
 
-        <div id="hint-action-container" class="mt-3 text-start">
-            <button id="show-hint-btn" class="btn btn-sm btn-outline-info d-none" type="button">Show Hint 💡</button>
-        </div>
+            <div id="hint-action-container" class="mt-3 text-start">
+                <button id="show-hint-btn" class="btn btn-sm btn-outline-info d-none" type="button">Show Hint 💡</button>
+            </div>
 
-        <div class="d-flex flex-wrap justify-content-between gap-3 mt-5">
-            <button id="skip-btn" class="btn btn-outline-secondary px-4">Skip Question</button>
-            <div class="d-flex flex-wrap gap-3 ms-auto">
-                <button id="submit-btn" class="btn btn-outline-secondary px-4">Submit Quiz</button>
-                <button id="next-btn" class="btn btn-primary px-5" disabled>Next Question</button>
+            <div class="d-flex flex-wrap justify-content-between gap-3 mt-5">
+                <button id="skip-btn" class="btn btn-outline-secondary px-4">Skip Question</button>
+                <div class="d-flex flex-wrap gap-3 ms-auto">
+                    <button id="submit-btn" class="btn btn-outline-secondary px-4">Submit Quiz</button>
+                    <button id="next-btn" class="btn btn-primary px-5" disabled>Next Question</button>
+                </div>
             </div>
         </div>
     </div>
@@ -228,7 +196,6 @@
         <div class="card text-start mb-4 p-4 review-card">
             <h4 class="fw-bold mb-3">Review Answers</h4>
             <div id="review-accordion" class="accordion accordion-flush">
-                
             </div>
         </div>
 
@@ -254,7 +221,6 @@
             <button id="restart-quiz-btn" class="btn btn-primary btn-lg px-5">Try Another Quiz</button>
         </div>
     </div>
-    </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -264,37 +230,16 @@
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 </script>
 
-<script src="config_key.php"></script>
 <script src="script.js"></script>
 
-
-
-
-<div class="modal fade" id="users-list-modal" tabindex="-1" aria-labelledby="usersListModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content text-start border-0 shadow-lg" style="background: var(--surface); color: var(--text); border-radius: 20px; backdrop-filter: blur(16px);">
-            <div class="modal-header border-0 pb-0 pt-4 px-4 d-flex justify-content-between align-items-center">
-                <h4 class="modal-title fw-bold" id="usersListModalLabel">Registered Users</h4>
-                <button type="button" class="btn-close m-0" data-bs-dismiss="modal" aria-label="Close" style="filter: var(--text-color-mix-filter, invert(0.8));"></button>
-            </div>
-            <div class="modal-body p-4">
-                <div class="table-responsive">
-                    <table class="table align-middle" style="color: var(--text); border-color: var(--border);">
-                        <thead>
-                            <tr style="border-bottom: 2px solid var(--border);">
-                                <th style="font-weight: 600; font-size: 0.85rem; color: var(--muted); border: none;">ID</th>
-                                <th style="font-weight: 600; font-size: 0.85rem; color: var(--muted); border: none;">NAME</th>
-                                <th style="font-weight: 600; font-size: 0.85rem; color: var(--muted); border: none;">EMAIL</th>
-                                <th style="font-weight: 600; font-size: 0.85rem; color: var(--muted); border: none;">PASSWORD HASH (BCRYPT)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="users-table-body">
-                            
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+<div id="proctor-warning-overlay" class="proctor-overlay d-none">
+    <div class="proctor-warning-card text-center p-5 card">
+        <div class="warning-icon mb-4">⚠️</div>
+        <h2 class="text-danger fw-bold mb-3">Proctor Alert!</h2>
+        <p class="fs-5 mb-4">You have exited full screen mode. Exams must be taken in full screen.</p>
+        <div class="countdown-timer mb-4" id="proctor-countdown">5</div>
+        <p class="text-muted mb-4">Re-enter full screen to resume or the quiz will be submitted automatically.</p>
+        <button id="re-enter-fullscreen-btn" class="btn btn-danger btn-lg px-5" type="button">Re-enter Full Screen</button>
     </div>
 </div>
 
