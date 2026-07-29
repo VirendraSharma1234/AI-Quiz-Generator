@@ -247,14 +247,7 @@ function shuffleQuiz(questions) {
 
 function isQuizRelatedTutorQuestion(rawQuestion) {
   const question = rawQuestion.trim().toLowerCase();
-  if (!question) return false;
-
-  const quizKeywords = [
-    "question", "quiz", "answer", "option", "choice", "correct", "wrong",
-    "mistake", "incorrect", "review", "skip", "score", "explain",
-  ];
-
-  return quizKeywords.some((word) => question.includes(word)) || /\d+/.test(question);
+  return question.length > 0;
 }
 
 function buildTutorQuizContext(quizData, userAnswers) {
@@ -282,9 +275,10 @@ function buildTutorQuizContext(quizData, userAnswers) {
 
 function buildTutorPrompt(rawQuestion, quizData, userAnswers) {
   return `You are a friendly quiz tutor inside a study app.
-Only answer about this quiz and its questions, options, correct answers, user's answers, and score.
-If the user asks about anything else, reply exactly: I can only help with this quiz.
-Keep the answer very brief, simple, and engaging. Use 1 to 3 short sentences.
+You can answer questions about this quiz, correct answers, the user's score, or explain any terms or concepts related to the quiz content.
+Explain things in the easiest and most simple way possible.
+If the user asks about topics completely unrelated to the quiz content, politely steer them back to the quiz.
+Keep the answer brief, simple, and engaging. Use 1 to 3 short sentences.
 Do not use markdown bullets, tables, or long explanations.
 
 Quiz context:

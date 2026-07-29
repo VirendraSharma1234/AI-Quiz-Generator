@@ -639,6 +639,26 @@ input.form-control {
     color: var(--text);
 }
 
+/* Dark Mode fixes for result boxes */
+[data-theme="dark"] .bg-success-subtle {
+    background-color: rgba(25, 135, 84, 0.2) !important;
+}
+[data-theme="dark"] .text-success {
+    color: #75b798 !important;
+}
+[data-theme="dark"] .bg-danger-subtle {
+    background-color: rgba(220, 53, 69, 0.2) !important;
+}
+[data-theme="dark"] .text-danger {
+    color: #ea868f !important;
+}
+[data-theme="dark"] .bg-secondary-subtle {
+    background-color: rgba(108, 117, 125, 0.2) !important;
+}
+[data-theme="dark"] .text-secondary {
+    color: #adb5bd !important;
+}
+
 .tutor-bubble.user {
     align-self: flex-end;
     background: var(--primary);
