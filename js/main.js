@@ -289,4 +289,36 @@ $(document).ready(function () {
   $("#re-enter-fullscreen-btn").on("click", function () {
     enterFullscreen();
   });
+
+  // Legendary 3D Parallax Mouse Tilt & Glare Tracking
+  const tiltElements = ".hero-card, .card, .drop-zone-card, .academic-context-card, .tutor-card";
+  
+  $(document).on("mousemove", tiltElements, function (e) {
+    const card = $(this);
+    if (!card.find(".tilt-glare").length) {
+      card.append('<div class="tilt-glare"></div>');
+    }
+
+    const rect = this.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    const rotateX = -((y - centerY) / centerY) * 6;
+    const rotateY = ((x - centerX) / centerX) * 6;
+
+    card.css({
+      transform: `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateZ(12px)`,
+      "--mouse-x": `${((x / rect.width) * 100).toFixed(1)}%`,
+      "--mouse-y": `${((y / rect.height) * 100).toFixed(1)}%`
+    });
+  });
+
+  $(document).on("mouseleave", tiltElements, function () {
+    $(this).css({
+      transform: "perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)"
+    });
+  });
 });
