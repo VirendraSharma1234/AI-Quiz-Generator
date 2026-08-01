@@ -18,7 +18,7 @@
 <nav class="app-navbar navbar fixed-top px-3 px-md-4">
     <div class="container-fluid max-container p-0 d-flex align-items-center justify-content-between">
         <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-decoration-none" href="#">
-            <span class="brand-icon">✨</span>
+            <span class="brand-icon"><svg class="brand-svg-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
             <span class="brand-text">Quizwee <span class="gradient-text">AI</span></span>
             <span class="badge brand-badge ms-2">v2.5</span>
         </a>
@@ -27,7 +27,7 @@
                 <span class="status-dot"></span> AI Engine Online
             </span>
             <button id="theme-toggle" class="theme-toggle btn" type="button" aria-label="Toggle dark theme">
-                <span class="theme-toggle-icon" aria-hidden="true">🌙</span>
+                <span class="theme-toggle-icon" aria-hidden="true"><svg class="theme-svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
                 <span class="theme-toggle-text">Dark</span>
             </button>
         </div>
@@ -36,14 +36,14 @@
 
 <div class="container main-container">
     <div class="hero-card text-center mb-4 mb-md-5">
-        <div class="hero-badge mb-3">✨ AI-Powered Intelligent Learning</div>
+        <div class="hero-badge mb-3">AI-Powered Intelligent Learning</div>
         <h1 class="hero-title fw-extrabold mb-3">Transform Anything Into <span class="gradient-text">Interactive Quizzes</span></h1>
         <p class="hero-subtitle mb-4">Generate instant university-grade quizzes, syllabus assessments, and practice exams with Gemini AI intelligence.</p>
         <div class="hero-features d-flex flex-wrap justify-content-center gap-2">
-            <span class="feature-tag">⚡ Instant AI Parsing</span>
-            <span class="feature-tag">🎓 Academic Rigor</span>
-            <span class="feature-tag">🔒 Anti-Cheat Proctor</span>
-            <span class="feature-tag">💬 24/7 AI Tutor</span>
+            <span class="feature-tag">Instant AI Parsing</span>
+            <span class="feature-tag">Academic Rigor</span>
+            <span class="feature-tag">Anti-Cheat Proctor</span>
+            <span class="feature-tag">24/7 AI Tutor</span>
         </div>
     </div>
 
@@ -59,11 +59,11 @@
             <div id="drop-zone" class="drop-zone-card text-center p-4 rounded-4 position-relative">
                 <input type="file" id="file-input" class="file-input-overlay" accept=".pdf,.txt">
                 <div class="drop-zone-content">
-                    <div class="drop-icon-circle mb-2">📄</div>
+                    <div class="drop-icon-circle mb-2"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
                     <h6 class="fw-bold mb-1 drop-title">Drag & Drop your document here</h6>
                     <p class="small text-muted mb-0 drop-subtext">or <span class="text-primary fw-semibold text-decoration-underline">browse files</span> from your device</p>
                     <div id="file-name-badge" class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2 mt-3 d-none">
-                        📁 <span id="file-name-text">filename.pdf</span>
+                        <span id="file-name-text">filename.pdf</span>
                     </div>
                 </div>
             </div>
@@ -81,7 +81,7 @@
         <div class="academic-context-card mb-4 p-3.5 p-md-4 rounded-4">
             <div class="d-flex align-items-center justify-content-between mb-3">
                 <h6 class="fw-bold mb-0 d-flex align-items-center gap-2 text-primary">
-                    <span>🎓 Academic Context</span>
+                    <span>Academic Context</span>
                     <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1" style="font-size: 0.72rem;">Optional</span>
                 </h6>
                 <small class="text-muted">Tailor questions to your curriculum</small>
@@ -109,7 +109,7 @@
         <div class="row mb-4 g-3">
             <div class="col-md-4">
                 <label class="form-label fw-semibold">Number of Questions</label>
-                <input type="number" id="question-count" class="form-control" value="5" min="1" max="20">
+                <input type="number" id="question-count" class="form-control" value="5" min="1" max="100">
             </div>
             <div class="col-md-4">
                 <label class="form-label fw-semibold">Time Limit (minutes)</label>
@@ -152,7 +152,7 @@
             <div class="col-md-6 col-lg-3">
                 <div class="settings-switch-card">
                     <div class="form-check form-switch w-100 m-0 d-flex align-items-center justify-content-between">
-                        <label class="form-check-label fw-semibold mb-0" for="syllabus-mode">Syllabus Mode 📚</label>
+                        <label class="form-check-label fw-semibold mb-0" for="syllabus-mode">Syllabus Mode</label>
                         <input class="form-check-input ms-2" type="checkbox" id="syllabus-mode">
                     </div>
                 </div>
@@ -175,7 +175,7 @@
             </div>
         </div>
 
-        <button id="generate-btn" class="btn btn-primary w-100 py-3 fs-5">Generate Quiz ✨</button>
+        <button id="generate-btn" class="btn btn-primary w-100 py-3 fs-5">Generate Quiz</button>
     </div>
 
     <div id="loading-section" class="card p-5 text-center">
@@ -188,13 +188,15 @@
 
     <div id="quiz-section" class="card p-4 p-md-5">
         <div id="proctor-start-screen" class="text-center py-4 d-none">
-            <div class="warning-icon mb-4" style="font-size: 4.5rem; animation: proctorPulse 1.5s infinite;">🔒</div>
+            <div class="warning-icon mb-4 d-inline-flex align-items-center justify-content-center p-3 rounded-circle bg-danger-subtle text-danger">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
             <h2 class="text-danger fw-bold mb-3">Proctored Exam Ready</h2>
             <p class="fs-5 mb-4 text-muted mx-auto" style="max-width: 600px;">
                 This exam must be taken in <strong>Full Screen Mode</strong>. 
                 Exiting full screen, minimizing the window, or switching tabs will trigger a warning and automatically submit your answers after a 5-second countdown.
             </p>
-            <button id="start-proctored-btn" class="btn btn-danger btn-lg px-5 py-3 fs-5 fw-bold shadow" type="button">Begin Proctored Exam 🚀</button>
+            <button id="start-proctored-btn" class="btn btn-danger btn-lg px-5 py-3 fs-5 fw-bold shadow" type="button">Begin Proctored Exam</button>
         </div>
 
         <div id="quiz-card-content">
@@ -215,15 +217,15 @@
 
             <div id="quiz-feedback-container" class="mt-4">
                 <div id="hint-box" class="alert alert-info d-none" role="alert">
-                    <strong>Hint 💡:</strong> <span id="hint-text"></span>
+                    <strong>Hint:</strong> <span id="hint-text"></span>
                 </div>
                 <div id="explanation-box" class="alert alert-success d-none" role="alert">
-                    <strong>Explanation 📖:</strong> <span id="explanation-text"></span>
+                    <strong>Explanation:</strong> <span id="explanation-text"></span>
                 </div>
             </div>
 
             <div id="hint-action-container" class="mt-3 text-start">
-                <button id="show-hint-btn" class="btn btn-sm btn-outline-info d-none" type="button">Show Hint 💡</button>
+                <button id="show-hint-btn" class="btn btn-sm btn-outline-info d-none" type="button">Show Hint</button>
             </div>
 
             <div class="d-flex flex-wrap justify-content-between gap-3 mt-5">
@@ -237,7 +239,7 @@
     </div>
 
     <div id="result-section" class="card p-4 p-md-5 text-center">
-        <h2 class="fw-bold mb-4">Quiz Complete! 🎉</h2>
+        <h2 class="fw-bold mb-4">Quiz Complete!</h2>
         
         <div class="row g-3 mb-5">
             <div class="col-4">
@@ -289,7 +291,7 @@
         </div>
 
         <div class="d-flex flex-wrap justify-content-center gap-3 mb-3">
-            <button id="reattempt-quiz-btn" class="btn btn-outline-primary btn-lg px-5">Reattempt Quiz 🔄</button>
+            <button id="reattempt-quiz-btn" class="btn btn-outline-primary btn-lg px-5">Reattempt Quiz</button>
             <button id="restart-quiz-btn" class="btn btn-primary btn-lg px-5">Try Another Quiz</button>
         </div>
     </div>
@@ -310,7 +312,9 @@
 
 <div id="proctor-warning-overlay" class="proctor-overlay d-none">
     <div class="proctor-warning-card text-center p-5 card">
-        <div class="warning-icon mb-4">⚠️</div>
+        <div class="warning-icon mb-4 d-inline-flex align-items-center justify-content-center p-3 rounded-circle bg-danger-subtle text-danger">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
         <h2 class="text-danger fw-bold mb-3">Proctor Alert!</h2>
         <p class="fs-5 mb-4">You have exited full screen mode. Exams must be taken in full screen.</p>
         <div class="countdown-timer mb-4" id="proctor-countdown">5</div>

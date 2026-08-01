@@ -57,9 +57,9 @@ function validateForm() {
 
   const sourceContent = finalContent || `Topic: ${academicTopic}. Degree: ${academicDegree}. Branch: ${academicBranch}. Year: ${academicYear}.`;
 
-  if (!Number.isInteger(count) || count < 1 || count > 20) {
+  if (!Number.isInteger(count) || count < 1 || count > 100) {
     $("#question-count").addClass("is-invalid");
-    showStatusMessage("Question count must be between 1 and 20.", "warning");
+    showStatusMessage("Question count must be between 1 and 100.", "warning");
     return null;
   }
 
@@ -250,15 +250,15 @@ function renderReviewAccordion() {
     if (isSkipped) {
       statusText = "Skipped";
       statusClass = "text-secondary";
-      statusIcon = "⬜";
+      statusIcon = "[Skipped]";
     } else if (isCorrect) {
       statusText = "Correct";
       statusClass = "text-success";
-      statusIcon = "✅";
+      statusIcon = "[Correct]";
     } else {
       statusText = "Incorrect";
       statusClass = "text-danger";
-      statusIcon = "❌";
+      statusIcon = "[Incorrect]";
     }
     
     const optionsHtml = q.options.map((opt, optIdx) => {
@@ -276,7 +276,7 @@ function renderReviewAccordion() {
       <div class="review-item">
         <div class="review-header d-flex align-items-center justify-content-between">
           <span class="fw-bold text-truncate" style="max-width: 80%;">${idx + 1}. ${q.question}</span>
-          <span class="${statusClass} fw-bold ms-2">${statusIcon} ${statusText}</span>
+          <span class="${statusClass} fw-bold ms-2">${statusText}</span>
         </div>
         <div class="review-body" style="display: none;">
           <p class="mb-3 fw-semibold">${q.question}</p>

@@ -157,7 +157,7 @@ function generateQuizLocally(content, count, difficulty, questionType) {
   const keywords = getKeywordCandidates(content);
   const questions = [];
   const usedKeys = new Set();
-  const safeCount = Math.max(1, Math.min(count, 20));
+  const safeCount = Math.max(1, Math.min(count, 100));
   const difficultyLabels = { easy: "main idea", medium: "key detail", hard: "careful detail" };
 
   for (let index = 0; index < safeCount; index++) {

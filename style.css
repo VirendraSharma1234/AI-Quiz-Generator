@@ -909,3 +909,84 @@ input.form-control {
         border-radius: 20px;
     }
 }
+
+/* ==========================================================================
+   3D Animations & Dynamic Perspective Effects
+   ========================================================================== */
+.main-container {
+    perspective: 1200px;
+    transform-style: preserve-3d;
+}
+
+.hero-card, 
+.card, 
+.drop-zone-card, 
+.academic-context-card, 
+.tutor-card,
+.proctor-warning-card {
+    transform-style: preserve-3d;
+    transition: transform 0.45s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.45s ease, background 0.3s ease;
+}
+
+.hero-card:hover, 
+#input-section:hover {
+    transform: perspective(1000px) rotateX(1.2deg) rotateY(-1.2deg) translateZ(8px) translateY(-4px);
+    box-shadow: 0 32px 75px rgba(79, 70, 229, 0.16), 0 10px 25px rgba(0, 0, 0, 0.06);
+}
+
+.hero-badge, 
+.feature-tag, 
+.status-pill {
+    transform-style: preserve-3d;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+}
+
+.hero-badge:hover, 
+.feature-tag:hover {
+    transform: perspective(600px) translateZ(12px) rotateY(3deg) translateY(-2px);
+}
+
+.quiz-option {
+    transform-style: preserve-3d;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.quiz-option:hover {
+    transform: perspective(800px) translateZ(10px) rotateX(1deg) translateY(-2px);
+    box-shadow: 0 12px 28px rgba(79, 70, 229, 0.15);
+}
+
+.quiz-option.selected {
+    transform: perspective(800px) translateZ(14px) scale(1.01);
+    box-shadow: 0 16px 36px rgba(79, 70, 229, 0.22);
+}
+
+.btn-primary, 
+.btn-outline-primary, 
+.btn-danger {
+    transform-style: preserve-3d;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, background-color 0.2s ease;
+}
+
+.btn-primary:hover, 
+.btn-danger:hover {
+    transform: perspective(600px) translateZ(8px) translateY(-2px);
+    box-shadow: 0 12px 28px rgba(79, 70, 229, 0.3);
+}
+
+@keyframes card3DFlipIn {
+    0% {
+        opacity: 0;
+        transform: perspective(1000px) rotateX(-10deg) translateZ(-30px) translateY(15px);
+    }
+    100% {
+        opacity: 1;
+        transform: perspective(1000px) rotateX(0deg) translateZ(0) translateY(0);
+    }
+}
+
+#quiz-card-content, 
+#result-section, 
+#loading-section {
+    animation: card3DFlipIn 0.5s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+}
