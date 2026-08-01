@@ -895,7 +895,7 @@ input.form-control {
     line-height: 1;
 }
 
-@media (max-width: 576px) {
+@media (max-width: 768px) {
     .main-container {
         padding-top: 92px;
     }
@@ -908,7 +908,61 @@ input.form-control {
     .card {
         border-radius: 20px;
     }
+
+    /* Mobile Performance & Anti-Lag Optimizations */
+    .ambient-blob {
+        filter: blur(40px) !important;
+        opacity: 0.35 !important;
+        animation: none !important;
+    }
+    
+    .ambient-3d-scene {
+        display: none !important; /* Hide continuous 3D scene on mobile GPUs */
+    }
+
+    .app-navbar {
+        backdrop-filter: blur(10px) !important;
+    }
+
+    .hero-card, .card, .drop-zone-card, .academic-context-card, .tutor-card {
+        backdrop-filter: blur(10px) !important;
+        transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    }
+
+    /* GPU acceleration for smooth touch scrolling */
+    .card, .hero-card, .btn, .quiz-option {
+        will-change: transform;
+        transform: translateZ(0);
+    }
 }
+
+/* Footer Styling */
+.app-footer {
+    border-top: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(12px);
+    transition: background-color 0.3s ease;
+}
+
+[data-theme="dark"] .app-footer {
+    background: rgba(11, 19, 41, 0.6);
+    border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+.footer-link {
+    color: var(--muted);
+    transition: color 0.2s ease;
+}
+
+.footer-link:hover {
+    color: var(--primary);
+}
+
+.footer-divider {
+    border-color: var(--border);
+    opacity: 0.5;
+}
+
 
 /* ==========================================================================
    3D Animations & Dynamic Perspective Effects
