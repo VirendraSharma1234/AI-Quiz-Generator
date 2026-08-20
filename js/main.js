@@ -292,9 +292,10 @@ $(document).ready(function () {
 
   // Legendary 3D Parallax Mouse Tilt & Glare Tracking (Desktop / Fine Pointer Only)
   if (window.matchMedia && window.matchMedia("(pointer: fine)").matches) {
-    const tiltElements = ".hero-card, .card, .drop-zone-card, .academic-context-card, .tutor-card";
+    const tiltElements = ".hero-card, #input-section, .drop-zone-card, .academic-context-card, .tutor-card, .review-card";
     
     $(document).on("mousemove", tiltElements, function (e) {
+      if ($(this).hasClass("proctor-warning-card") || $(this).closest(".proctor-overlay").length) return;
       const card = $(this);
       if (!card.find(".tilt-glare").length) {
         card.append('<div class="tilt-glare"></div>');
@@ -307,11 +308,11 @@ $(document).ready(function () {
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
 
-      const rotateX = -((y - centerY) / centerY) * 5;
-      const rotateY = ((x - centerX) / centerX) * 5;
+      const rotateX = -((y - centerY) / centerY) * 4;
+      const rotateY = ((x - centerX) / centerX) * 4;
 
       card.css({
-        transform: `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateZ(10px)`,
+        transform: `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateZ(8px)`,
         "--mouse-x": `${((x / rect.width) * 100).toFixed(1)}%`,
         "--mouse-y": `${((y / rect.height) * 100).toFixed(1)}%`
       });
