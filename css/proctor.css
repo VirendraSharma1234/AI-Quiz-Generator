@@ -1,0 +1,63 @@
+/* ==========================================================================
+   Quizwee AI - Proctored Anti-Cheat Mode & Warning Overlay
+   ========================================================================== */
+
+.proctor-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(9, 17, 31, 0.78) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    z-index: 999999 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 20px !important;
+    margin: 0 !important;
+}
+
+.proctor-overlay.d-none {
+    display: none !important;
+}
+
+.proctor-warning-card {
+    max-width: 520px !important;
+    width: 100% !important;
+    margin: auto !important;
+    border: 2px solid #ef4444 !important;
+    border-radius: 28px !important;
+    background: var(--surface-solid) !important;
+    box-shadow: 0 25px 60px -10px rgba(239, 68, 68, 0.45);
+    animation: proctorPulse 2s infinite ease-in-out;
+    position: relative !important;
+    transform: none !important;
+}
+
+[data-theme="dark"] .proctor-warning-card {
+    background: #0f172a !important;
+    color: #f8fafc !important;
+}
+
+@keyframes proctorPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5), 0 25px 60px -10px rgba(239, 68, 68, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 18px rgba(239, 68, 68, 0), 0 30px 70px -5px rgba(239, 68, 68, 0.6);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0), 0 25px 60px -10px rgba(239, 68, 68, 0.4);
+    }
+}
+
+.countdown-timer {
+    font-size: 4rem;
+    font-weight: 800;
+    color: #ef4444;
+    line-height: 1;
+}
