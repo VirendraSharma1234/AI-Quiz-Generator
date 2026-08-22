@@ -36,6 +36,79 @@ async function callGeminiAPI(prompt) {
   throw lastError || new Error("All Gemini models failed");
 }
 
+async function callGroqAPI(prompt) {
+  let lastError = null;
+
+  for (const model of GROQ_MODELS) {
+    try {
+      const response = await fetch(GROQ_API_URL, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${GROQ_API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: model,
+          messages: [
+            {
+              role: "system",
+              content: "You are an expert university professor creating structured JSON quizzes."
+            },
+            {
+              role: "user",
+              content: prompt
+            }
+          ],
+          temperature: 0.5
+        })
+      });
+
+      const responseText = await response.text();
+      let data;
+      try {
+        data = responseText ? JSON.parse(responseText) : {};
+      } catch (parseError) {
+        throw new Error(`Invalid Groq response (${response.status}) from ${model}`);
+      }
+
+      if (!response.ok) {
+        throw new Error(`${data?.error?.message || `HTTP ${response.status}`} (${model})`);
+      }
+
+      const replyText = data?.choices?.[0]?.message?.content;
+      if (!replyText || !replyText.trim()) {
+        throw new Error(`No response from Groq AI (${model})`);
+      }
+
+      return replyText;
+    } catch (modelError) {
+      lastError = modelError;
+      console.warn(`Groq model ${model} failed:`, modelError);
+    }
+  }
+
+  throw lastError || new Error("All Groq models failed");
+}
+
+async function callAIProvider(prompt) {
+  try {
+    const geminiReply = await callGeminiAPI(prompt);
+    console.log("Quiz generated via Gemini API");
+    return geminiReply;
+  } catch (geminiError) {
+    console.warn("Gemini API failed, seamlessly switching to Groq API...", geminiError);
+  }
+
+  try {
+    const groqReply = await callGroqAPI(prompt);
+    console.log("Quiz generated via Groq API (Failover)");
+    return groqReply;
+  } catch (groqError) {
+    console.warn("Groq API failed:", groqError);
+    throw groqError;
+  }
+}
+
 async function generateQuizFromAI(content, count, difficulty, questionType, focusArea, academicContext, isSyllabusMode) {
   let typeRequirement = "";
   if (questionType === "tf") {
@@ -87,7 +160,7 @@ async function generateQuizFromAI(content, count, difficulty, questionType, focu
       `;
 
   try {
-    const rawText = await callGeminiAPI(prompt);
+    const rawText = await callAIProvider(prompt);
     console.log("AI Raw Response:", rawText);
 
     const jsonMatch = rawText.match(/\[[\s\S]*\]/);
@@ -98,15 +171,12 @@ async function generateQuizFromAI(content, count, difficulty, questionType, focu
     const parsedQuiz = JSON.parse(jsonMatch[0]);
     return parsedQuiz;
   } catch (error) {
-    console.error("Detailed Error:", error);
-    if (typeof isQuotaOrAvailabilityError === "function" && isQuotaOrAvailabilityError(error)) {
-      const fallbackQuiz = generateQuizLocally(content, count, difficulty, questionType);
-      if (typeof showStatusMessage === "function") {
-        showStatusMessage("Gemini is unavailable right now, so the app is using the built-in quiz generator.", "warning");
-      }
-      return fallbackQuiz;
+    console.error("Detailed Error across AI providers:", error);
+    const fallbackQuiz = generateQuizLocally(content, count, difficulty, questionType);
+    if (typeof showStatusMessage === "function") {
+      showStatusMessage("AI Cloud Services are temporarily busy, so the quiz was generated using the built-in offline engine.", "warning");
     }
-    throw error;
+    return fallbackQuiz;
   }
 }
 
@@ -289,6 +359,11 @@ User question: ${rawQuestion}
 }
 
 async function askTutorWithAI(rawQuestion, quizData, userAnswers) {
-  const reply = await callGeminiAPI(buildTutorPrompt(rawQuestion, quizData, userAnswers));
-  return reply.trim();
+  try {
+    const reply = await callAIProvider(buildTutorPrompt(rawQuestion, quizData, userAnswers));
+    return reply.trim();
+  } catch (error) {
+    console.warn("AI Tutor unavailable:", error);
+    return getIncorrectAnswerSummary(quizData, userAnswers);
+  }
 }

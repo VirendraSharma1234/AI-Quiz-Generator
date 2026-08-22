@@ -546,6 +546,59 @@ input.form-control {
     100% { background-position: 0 0; }
 }
 
+/* Enhanced Prominent Quiz Status Header & Timer */
+.quiz-header-status {
+    background: var(--surface-strong);
+    border: 1px solid var(--border) !important;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+}
+
+.quiz-status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.2;
+    transition: all 0.25s ease;
+}
+
+.progress-status-pill {
+    background: var(--primary-soft);
+    color: var(--primary);
+    border: 1px solid rgba(79, 70, 229, 0.22);
+}
+
+.timer-status-pill {
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+[data-theme="dark"] .progress-status-pill {
+    background: rgba(129, 140, 248, 0.18);
+    color: #a5b4fc;
+    border-color: rgba(129, 140, 248, 0.35);
+}
+
+[data-theme="dark"] .timer-status-pill {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
+.quiz-status-val {
+    font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 800;
+}
+
+.timer-val {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.8px;
+}
+
 .badge.bg-secondary {
     background-color: var(--surface-strong) !important;
     color: var(--text) !important;
@@ -1008,220 +1061,81 @@ input.form-control {
 
 
 /* ==========================================================================
-   3D Animations & Dynamic Perspective Effects
+   Clean, Calm & High-Performance UI Transitions
    ========================================================================== */
-.main-container {
-    perspective: 1200px;
-    transform-style: preserve-3d;
-}
 
 .hero-card, 
 .card, 
 .drop-zone-card, 
 .academic-context-card, 
-.tutor-card,
-.proctor-warning-card {
-    transform-style: preserve-3d;
-    transition: transform 0.45s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.45s ease, background 0.3s ease;
+.tutor-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .hero-card:hover, 
 #input-section:hover {
-    transform: perspective(1000px) rotateX(1.2deg) rotateY(-1.2deg) translateZ(8px) translateY(-4px);
-    box-shadow: 0 32px 75px rgba(79, 70, 229, 0.16), 0 10px 25px rgba(0, 0, 0, 0.06);
+    transform: translateY(-3px);
+    box-shadow: 0 20px 40px rgba(79, 70, 229, 0.12), 0 4px 12px rgba(0, 0, 0, 0.04);
 }
 
 .hero-badge, 
 .feature-tag, 
 .status-pill {
-    transform-style: preserve-3d;
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+    transition: transform 0.2s ease, background 0.2s ease;
 }
 
 .hero-badge:hover, 
 .feature-tag:hover {
-    transform: perspective(600px) translateZ(12px) rotateY(3deg) translateY(-2px);
+    transform: translateY(-2px);
 }
 
 .quiz-option {
-    transform-style: preserve-3d;
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, border-color 0.3s ease;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
 }
 
 .quiz-option:hover {
-    transform: perspective(800px) translateZ(10px) rotateX(1deg) translateY(-2px);
-    box-shadow: 0 12px 28px rgba(79, 70, 229, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.12);
 }
 
 .quiz-option.selected {
-    transform: perspective(800px) translateZ(14px) scale(1.01);
-    box-shadow: 0 16px 36px rgba(79, 70, 229, 0.22);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(79, 70, 229, 0.18);
 }
 
 .btn-primary, 
 .btn-outline-primary, 
 .btn-danger,
 .btn {
-    transform-style: preserve-3d;
-    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.25s ease, background-color 0.2s ease;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
 }
 
 .btn-primary:hover, 
 .btn-danger:hover {
-    transform: perspective(600px) translateZ(10px) translateY(-3px);
-    box-shadow: 0 16px 32px rgba(79, 70, 229, 0.35);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(79, 70, 229, 0.25);
 }
 
 .btn-primary:active, 
 .btn-danger:active,
 .btn:active {
-    transform: perspective(600px) translateZ(-6px) scale(0.97) translateY(2px) !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    transform: translateY(1px) scale(0.99) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
 }
 
-/* Dynamic Interactive Mouse Tilt Glare Layer */
-.tilt-glare {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: inherit;
-    pointer-events: none;
-    background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.18) 0%, transparent 60%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 5;
-}
-
-.card:hover .tilt-glare,
-.hero-card:hover .tilt-glare {
-    opacity: 1;
-}
-
-/* Ambient 3D Scene Floating Geometry Elements */
-.ambient-3d-scene {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    pointer-events: none;
-    z-index: -1;
-    perspective: 1000px;
-    overflow: hidden;
-}
-
-.cube-3d {
-    position: absolute;
-    width: 60px;
-    height: 60px;
-    transform-style: preserve-3d;
-    animation: rotate3DCube 24s linear infinite;
-    opacity: 0.35;
-}
-
-.cube-1 {
-    top: 18%;
-    left: 8%;
-    animation-duration: 22s;
-}
-
-.cube-2 {
-    bottom: 22%;
-    right: 10%;
-    width: 80px;
-    height: 80px;
-    animation-duration: 28s;
-    animation-direction: reverse;
-}
-
-.cube-3d .face {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border: 1.5px solid var(--primary);
-    background: rgba(99, 102, 241, 0.05);
-    backdrop-filter: blur(4px);
-    border-radius: 8px;
-    box-shadow: inset 0 0 15px rgba(99, 102, 241, 0.15);
-}
-
-.cube-3d .front  { transform: rotateY(0deg) translateZ(30px); }
-.cube-3d .back   { transform: rotateY(180deg) translateZ(30px); }
-.cube-3d .left   { transform: rotateY(-90deg) translateZ(30px); }
-.cube-3d .right  { transform: rotateY(90deg) translateZ(30px); }
-.cube-3d .top    { transform: rotateX(90deg) translateZ(30px); }
-.cube-3d .bottom { transform: rotateX(-90deg) translateZ(30px); }
-
-.cube-2 .front, .cube-2 .back, .cube-2 .left, .cube-2 .right, .cube-2 .top, .cube-2 .bottom {
-    transform-origin: center;
-}
-.cube-2 .front  { transform: rotateY(0deg) translateZ(40px); }
-.cube-2 .back   { transform: rotateY(180deg) translateZ(40px); }
-.cube-2 .left   { transform: rotateY(-90deg) translateZ(40px); }
-.cube-2 .right  { transform: rotateY(90deg) translateZ(40px); }
-.cube-2 .top    { transform: rotateX(90deg) translateZ(40px); }
-.cube-2 .bottom { transform: rotateX(-90deg) translateZ(40px); }
-
-@keyframes rotate3DCube {
-    0% {
-        transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg) translateY(0);
-    }
-    50% {
-        transform: rotateX(180deg) rotateY(270deg) rotateZ(90deg) translateY(-25px);
-    }
-    100% {
-        transform: rotateX(360deg) rotateY(540deg) rotateZ(180deg) translateY(0);
-    }
-}
-
-.floating-ring {
-    position: absolute;
-    border-radius: 50%;
-    border: 2px dashed rgba(168, 85, 247, 0.25);
-    pointer-events: none;
-    animation: rotate3DRing 30s linear infinite;
-}
-
-.ring-1 {
-    top: 55%;
-    left: 4%;
-    width: 140px;
-    height: 140px;
-}
-
-.ring-2 {
-    top: 12%;
-    right: 7%;
-    width: 180px;
-    height: 180px;
-    animation-duration: 38s;
-    animation-direction: reverse;
-}
-
-@keyframes rotate3DRing {
-    0% {
-        transform: perspective(600px) rotateX(65deg) rotateZ(0deg);
-    }
-    100% {
-        transform: perspective(600px) rotateX(65deg) rotateZ(360deg);
-    }
-}
-
-@keyframes card3DFlipIn {
-    0% {
+@keyframes calmFadeIn {
+    from {
         opacity: 0;
-        transform: perspective(1200px) rotateX(-14deg) rotateY(6deg) translateZ(-50px) translateY(25px);
+        transform: translateY(8px);
     }
-    100% {
+    to {
         opacity: 1;
-        transform: perspective(1200px) rotateX(0deg) rotateY(0deg) translateZ(0) translateY(0);
+        transform: translateY(0);
     }
 }
 
 #quiz-card-content, 
 #result-section, 
 #loading-section {
-    animation: card3DFlipIn 0.55s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+    animation: calmFadeIn 0.35s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
 }

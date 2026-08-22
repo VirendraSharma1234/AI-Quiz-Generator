@@ -153,6 +153,7 @@ $(document).ready(function () {
     if (!formData) return;
 
     clearStatusMessage();
+    $("#hero-card").fadeOut(300);
     $("#input-section").fadeOut(300, function () {
       $("#loading-section").fadeIn(300);
     });
@@ -175,6 +176,7 @@ $(document).ready(function () {
     } catch (error) {
       console.error(error);
       showStatusMessage(getApiErrorMessage(error), "danger");
+      $("#hero-card").fadeIn(300);
       $("#loading-section").hide();
       $("#input-section").show();
     }
@@ -289,39 +291,4 @@ $(document).ready(function () {
   $("#re-enter-fullscreen-btn").on("click", function () {
     enterFullscreen();
   });
-
-  // Legendary 3D Parallax Mouse Tilt & Glare Tracking (Desktop / Fine Pointer Only)
-  if (window.matchMedia && window.matchMedia("(pointer: fine)").matches) {
-    const tiltElements = ".hero-card, #input-section, .drop-zone-card, .academic-context-card, .tutor-card, .review-card";
-    
-    $(document).on("mousemove", tiltElements, function (e) {
-      if ($(this).hasClass("proctor-warning-card") || $(this).closest(".proctor-overlay").length) return;
-      const card = $(this);
-      if (!card.find(".tilt-glare").length) {
-        card.append('<div class="tilt-glare"></div>');
-      }
-
-      const rect = this.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-
-      const rotateX = -((y - centerY) / centerY) * 4;
-      const rotateY = ((x - centerX) / centerX) * 4;
-
-      card.css({
-        transform: `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateZ(8px)`,
-        "--mouse-x": `${((x / rect.width) * 100).toFixed(1)}%`,
-        "--mouse-y": `${((y / rect.height) * 100).toFixed(1)}%`
-      });
-    });
-
-    $(document).on("mouseleave", tiltElements, function () {
-      $(this).css({
-        transform: "perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)"
-      });
-    });
-  }
 });

@@ -108,7 +108,13 @@ function formatTime(seconds) {
 }
 
 function updateTimerDisplay() {
-  $("#time-remaining").text(`Time Left: ${formatTime(timeRemainingSeconds)}`);
+  const formatted = formatTime(timeRemainingSeconds);
+  const timerValElem = $("#time-remaining .timer-val");
+  if (timerValElem.length) {
+    timerValElem.text(formatted);
+  } else {
+    $("#time-remaining").text(`Time Left: ${formatted}`);
+  }
 }
 
 function stopTimer() {
@@ -177,7 +183,12 @@ function showImmediateFeedback(q, selectedIndex) {
 function showQuestion() {
   const q = quizData[currentQuestionIndex];
 
-  $("#question-progress").text(`Question ${currentQuestionIndex + 1} of ${quizData.length}`);
+  const progressValElem = $("#question-progress .quiz-status-val");
+  if (progressValElem.length) {
+    progressValElem.text(`${currentQuestionIndex + 1} of ${quizData.length}`);
+  } else {
+    $("#question-progress").text(`Question ${currentQuestionIndex + 1} of ${quizData.length}`);
+  }
   $("#progress-bar").css("width", `${((currentQuestionIndex + 1) / quizData.length) * 100}%`);
   $("#question-text").text(q.question);
 
@@ -316,6 +327,13 @@ function showResults() {
 
   renderReviewAccordion();
 
+  if (isShuffled) {
+    $("#reattempt-quiz-btn").removeClass("d-none");
+  } else {
+    $("#reattempt-quiz-btn").addClass("d-none");
+  }
+
+  $("#hero-card").hide();
   $("#quiz-section").fadeOut(300, function () {
     $("#result-section").fadeIn(300);
     initializeTutorChat();
