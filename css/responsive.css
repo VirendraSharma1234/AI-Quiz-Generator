@@ -1,8 +1,3 @@
-/* ==========================================================================
-   Quizwee AI - Responsive Layout & Low-Motion Animations
-   ========================================================================== */
-
-/* Clean, Calm & High-Performance UI Transitions */
 .hero-card, 
 .card, 
 .drop-zone-card, 
@@ -79,7 +74,6 @@
     animation: calmFadeIn 0.35s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
 }
 
-/* Mobile Responsiveness & Hardware Acceleration */
 @media (max-width: 768px) {
     .main-container {
         padding-top: 92px;
@@ -109,7 +103,6 @@
         transition: transform 0.2s ease, box-shadow 0.2s ease !important;
     }
 
-    /* GPU acceleration for smooth touch scrolling on mobile */
     .card, .hero-card, .btn, .quiz-option {
         will-change: transform;
         transform: translateZ(0);

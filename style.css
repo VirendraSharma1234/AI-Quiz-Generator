@@ -1,7 +1,3 @@
-/* ==========================================================================
-   Quizwee AI - Master CSS Stylesheet (Modular Imports)
-   ========================================================================== */
-
 @import url('css/variables.css');
 @import url('css/components.css');
 @import url('css/quiz.css');

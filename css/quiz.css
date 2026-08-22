@@ -1,7 +1,3 @@
-/* ==========================================================================
-   Quizwee AI - Quiz Execution, Question Cards & Results Review
-   ========================================================================== */
-
 #loading-section,
 #quiz-section,
 #result-section {
@@ -18,7 +14,6 @@
     color: #f8fafc !important;
 }
 
-/* Enhanced Prominent Quiz Status Header & Timer */
 .quiz-header-status {
     background: var(--surface-strong);
     border: 1px solid var(--border) !important;
@@ -71,7 +66,6 @@
     letter-spacing: 0.8px;
 }
 
-/* Progress Bar */
 .progress {
     background-color: var(--surface-strong);
     border-radius: 999px;
@@ -92,7 +86,6 @@
     100% { background-position: 0 0; }
 }
 
-/* Option Cards with Choice Badges (A, B, C, D) */
 .quiz-option {
     cursor: pointer;
     transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
@@ -163,7 +156,6 @@
     color: #ffffff !important;
 }
 
-/* Question Navigation Grid */
 .nav-btn {
     width: 42px;
     height: 42px;
@@ -218,7 +210,6 @@
     border-color: var(--primary) !important;
 }
 
-/* Question Review Accordion & Explanation Cards */
 .review-card {
     border: 1px solid var(--border);
     background: var(--surface);
@@ -305,7 +296,6 @@
     color: #e2e8f0 !important;
 }
 
-/* Results Screen Badges & Dark Mode Overrides */
 .badge.bg-secondary {
     background-color: var(--surface-strong) !important;
     color: var(--text) !important;

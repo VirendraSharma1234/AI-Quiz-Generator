@@ -1,7 +1,3 @@
-/* ==========================================================================
-   Quizwee AI - Proctored Anti-Cheat Mode & Warning Overlay
-   ========================================================================== */
-
 .proctor-overlay {
     position: fixed !important;
     top: 0 !important;
