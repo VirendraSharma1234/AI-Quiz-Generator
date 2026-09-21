@@ -137,12 +137,17 @@ $(document).ready(function () {
           }
 
           extractedText = text.trim();
-          $("#file-name-text").text(`${file.name} (${pdf.numPages} ${pdf.numPages === 1 ? "page" : "pages"} loaded)`);
+          if (extractedText.length === 0) {
+            $("#file-name-text").text(`No text found in ${file.name}`);
+            showStatusMessage("No selectable text could be extracted from this PDF. If it is an image/scanned document, please copy and paste the text directly into the text area.", "warning");
+          } else {
+            $("#file-name-text").text(`${file.name} (${pdf.numPages} ${pdf.numPages === 1 ? "page" : "pages"} loaded)`);
+          }
           resolve(extractedText);
         } catch (err) {
           console.error("PDF Parsing Error:", err);
           $("#file-name-text").text(`Error reading ${file.name}`);
-          showStatusMessage("Could not read PDF file. Please ensure it contains selectable text.", "danger");
+          showStatusMessage("Could not read PDF file. Please ensure it is a valid PDF document.", "danger");
           reject(err);
         }
       };
@@ -158,20 +163,27 @@ $(document).ready(function () {
 
   function handleFileSelected(file) {
     if (!file) return;
-    $("#file-name-text").text(file.name);
+    const fileName = file.name || "uploaded_file";
+    const lowerName = fileName.toLowerCase();
+
+    $("#file-name-text").text(fileName);
     $("#file-name-badge").removeClass("d-none");
     extractedText = "";
 
-    if (file.type === "text/plain" || file.name.endsWith(".txt")) {
+    if (file.type.includes("text") || lowerName.endsWith(".txt") || lowerName.endsWith(".md") || lowerName.endsWith(".csv")) {
       const reader = new FileReader();
-      fileParsingPromise = new Promise((resolve) => {
+      fileParsingPromise = new Promise((resolve, reject) => {
         reader.onload = (e) => {
-          extractedText = e.target.result;
+          extractedText = (e.target.result || "").trim();
+          if (!extractedText) {
+            showStatusMessage("Uploaded text file is empty.", "warning");
+          }
           resolve(extractedText);
         };
+        reader.onerror = (err) => reject(err);
         reader.readAsText(file);
       });
-    } else if (file.type === "application/pdf" || file.name.endsWith(".pdf")) {
+    } else {
       fileParsingPromise = extractTextFromPdf(file);
     }
   }
