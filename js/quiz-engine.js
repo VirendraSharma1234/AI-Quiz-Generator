@@ -3,11 +3,15 @@ async function callGeminiAPI(prompt, systemInstruction = "") {
 
   for (const model of GEMINI_MODELS) {
     try {
+      const fullText = systemInstruction
+        ? `[SYSTEM INSTRUCTION: ${systemInstruction}]\n\n${prompt}`
+        : prompt;
+
       const payload = {
-        contents: [{ parts: [{ text: prompt }] }]
+        contents: [{ parts: [{ text: fullText }] }]
       };
       if (systemInstruction) {
-        payload.systemInstruction = { parts: [{ text: systemInstruction }] };
+        payload.system_instruction = { parts: [{ text: systemInstruction }] };
       }
 
       const response = await fetch(getGeminiApiUrl(model), {
@@ -221,14 +225,14 @@ function splitIntoSentences(content) {
   const chunks = content
     .split(/(?:\r?\n|•|[\.\!\?]\s+|;\s+|:\s+)/)
     .map((s) => s.replace(/^[-\*\d\.\s]+/, "").trim())
-    .filter((s) => s.length >= 20 && !/^(page\s+\d+|university|department|course\s+code|credits|marks|semester)/i.test(s));
+    .filter((s) => s.length >= 20 && !s.includes("--- Page") && !/^(page\s+\d+|---|university|department|course\s+code|credits|marks|semester)/i.test(s));
 
   if (chunks.length > 0) return chunks;
 
   return content
     .split(/(?<=[.!?])\s+/)
     .map((sentence) => sentence.trim())
-    .filter((sentence) => sentence.length >= 20);
+    .filter((sentence) => sentence.length >= 20 && !sentence.includes("--- Page"));
 }
 
 const STOP_WORDS = new Set([
@@ -238,6 +242,7 @@ const STOP_WORDS = new Set([
   "these", "those", "such", "because", "while", "where", "who", "whom", "whose", "our", "out", "over",
   "under", "after", "before", "during", "between", "each", "more", "most", "some", "any", "all", "one",
   "two", "three", "four", "five", "many", "much", "very", "into", "through", "using", "use", "used",
+  "page"
 ]);
 
 function getKeywordCandidates(content) {
@@ -245,7 +250,7 @@ function getKeywordCandidates(content) {
     .toLowerCase()
     .split(/\s+/)
     .map((word) => word.replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, ""))
-    .filter((word) => word.length > 3 && !STOP_WORDS.has(word));
+    .filter((word) => word.length > 3 && !STOP_WORDS.has(word) && word !== "page");
 
   const frequencies = new Map();
   words.forEach((word) => frequencies.set(word, (frequencies.get(word) || 0) + 1));
