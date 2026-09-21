@@ -47,15 +47,30 @@ function validateForm() {
   const academicBranch = $("#academic-branch").val().trim() || "";
   const academicYear = $("#academic-year").val().trim() || "";
 
-  const finalContent = textInput || extractedText;
+  let mainContent = textInput || extractedText;
 
-  if (!finalContent && !academicTopic) {
+  let sourceContent = mainContent;
+
+  if (academicTopic || academicDegree || academicBranch || academicYear) {
+    const contextDetails = [
+      academicTopic ? `Topic: ${academicTopic}` : "",
+      academicDegree ? `Degree: ${academicDegree}` : "",
+      academicBranch ? `Branch: ${academicBranch}` : "",
+      academicYear ? `Year/Sem: ${academicYear}` : ""
+    ].filter(Boolean).join(" | ");
+
+    if (mainContent) {
+      sourceContent = `[Academic Context: ${contextDetails}]\n\n${mainContent}`;
+    } else {
+      sourceContent = `Academic Topic Context: ${contextDetails}`;
+    }
+  }
+
+  if (!sourceContent || sourceContent.trim().length === 0) {
     $("#file-input, #text-input, #academic-topic").addClass("is-invalid");
     showStatusMessage("Please upload a PDF/text file, paste text, or enter an Academic Topic to generate a quiz.", "warning");
     return null;
   }
-
-  const sourceContent = finalContent || `Topic: ${academicTopic}. Degree: ${academicDegree}. Branch: ${academicBranch}. Year: ${academicYear}.`;
 
   if (!Number.isInteger(count) || count < 1 || count > 100) {
     $("#question-count").addClass("is-invalid");

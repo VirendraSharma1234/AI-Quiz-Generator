@@ -1,12 +1,19 @@
-async function callGeminiAPI(prompt) {
+async function callGeminiAPI(prompt, systemInstruction = "") {
   let lastError = null;
 
   for (const model of GEMINI_MODELS) {
     try {
+      const payload = {
+        contents: [{ parts: [{ text: prompt }] }]
+      };
+      if (systemInstruction) {
+        payload.systemInstruction = { parts: [{ text: systemInstruction }] };
+      }
+
       const response = await fetch(getGeminiApiUrl(model), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+        body: JSON.stringify(payload),
       });
 
       const responseText = await response.text();
@@ -36,8 +43,16 @@ async function callGeminiAPI(prompt) {
   throw lastError || new Error("All Gemini models failed");
 }
 
-async function callGroqAPI(prompt) {
+async function callGroqAPI(prompt, systemInstruction = "") {
   let lastError = null;
+
+  const messages = [];
+  if (systemInstruction) {
+    messages.push({ role: "system", content: systemInstruction });
+  } else {
+    messages.push({ role: "system", content: "You are an expert university professor creating structured JSON quizzes." });
+  }
+  messages.push({ role: "user", content: prompt });
 
   for (const model of GROQ_MODELS) {
     try {
@@ -49,16 +64,7 @@ async function callGroqAPI(prompt) {
         },
         body: JSON.stringify({
           model: model,
-          messages: [
-            {
-              role: "system",
-              content: "You are an expert university professor creating structured JSON quizzes."
-            },
-            {
-              role: "user",
-              content: prompt
-            }
-          ],
+          messages: messages,
           temperature: 0.5
         })
       });
@@ -90,9 +96,9 @@ async function callGroqAPI(prompt) {
   throw lastError || new Error("All Groq models failed");
 }
 
-async function callAIProvider(prompt) {
+async function callAIProvider(prompt, systemInstruction = "") {
   try {
-    const geminiReply = await callGeminiAPI(prompt);
+    const geminiReply = await callGeminiAPI(prompt, systemInstruction);
     console.log("Quiz generated via Gemini API");
     return geminiReply;
   } catch (geminiError) {
@@ -100,7 +106,7 @@ async function callAIProvider(prompt) {
   }
 
   try {
-    const groqReply = await callGroqAPI(prompt);
+    const groqReply = await callGroqAPI(prompt, systemInstruction);
     console.log("Quiz generated via Groq API (Failover)");
     return groqReply;
   } catch (groqError) {
@@ -114,61 +120,85 @@ async function generateQuizFromAI(content, count, difficulty, questionType, focu
   if (questionType === "tf") {
     typeRequirement = `Each question MUST be a True/False question. The "options" array must contain exactly ["True", "False"] and "correct_index" must be 0 for True or 1 for False.`;
   } else if (questionType === "mixed") {
-    typeRequirement = `You should generate a mix of standard 4-option multiple-choice questions and True/False questions (using exactly ["True", "False"] as options and correct_index 0 or 1).`;
+    typeRequirement = `Generate a mix of standard 4-option multiple-choice questions and True/False questions (options: ["True", "False"]).`;
   } else {
     typeRequirement = `Each question MUST be a multiple-choice question with exactly 4 options.`;
   }
 
   let focusRequirement = "";
   if (focusArea) {
-    focusRequirement = `Focus quiz questions specifically on the following topics/area: ${focusArea}.`;
+    focusRequirement = `Focus areas: ${focusArea}.`;
   }
 
   let academicRequirement = "";
   if (academicContext) {
     const parts = [];
-    if (academicContext.topic) parts.push(`Topic/Subject: ${academicContext.topic}`);
+    if (academicContext.topic) parts.push(`Topic: ${academicContext.topic}`);
     if (academicContext.degree) parts.push(`Degree: ${academicContext.degree}`);
-    if (academicContext.branch) parts.push(`Branch/Specialization: ${academicContext.branch}`);
-    if (academicContext.year) parts.push(`Academic Year/Semester: ${academicContext.year}`);
+    if (academicContext.branch) parts.push(`Branch: ${academicContext.branch}`);
+    if (academicContext.year) parts.push(`Year: ${academicContext.year}`);
     if (parts.length > 0) {
-      academicRequirement = `Target Academic Level Context: [${parts.join(" | ")}]. Ensure the questions, terminology, difficulty, and problem complexity match standard university exam questions for a student pursuing this degree and branch.`;
+      academicRequirement = `Academic level: ${parts.join(" | ")}. Match terminology and difficulty to this level.`;
     }
   }
 
+  const isSyllabusDetected = isSyllabusMode || /syllabus|curriculum|module\s+[0-9|i|v|x]+|unit\s+[0-9|i|v|x]+/i.test(content);
+
   let syllabusRequirement = "";
-  if (isSyllabusMode) {
-    syllabusRequirement = `SYLLABUS REFERENCE MODE ENABLED: The provided source material is an academic syllabus. Carefully analyze all modules, units, sub-topics, and learning outcomes in this syllabus, and ensure the generated quiz questions cover main concepts and key units across the entire syllabus scope.`;
+  if (isSyllabusDetected) {
+    syllabusRequirement = `- SYLLABUS SCOPE: Distribute questions across the academic units/modules in the text. Ignore university policies, grading schemes, and administrative contact details.`;
   }
 
-  const prompt = `
-          Based on the following text and academic parameters, generate a ${difficulty} difficulty quiz with ${count} questions.
-          ${typeRequirement}
-          ${focusRequirement}
-          ${academicRequirement}
-          ${syllabusRequirement}
+  const systemInstruction = `You are an expert university professor creating an exam.
+STRICT RULE: Generate questions ONLY about the academic topics, concepts, algorithms, and theories inside the provided SOURCE MATERIAL.
+NEVER create questions about prompt instructions, system rules, grading policies, credit hours, office hours, or administrative metadata.
+Return ONLY a valid JSON array of question objects without markdown tags or conversational text.`;
 
-          Return ONLY a valid JSON array of objects. Do not include any markdown formatting or extra text.
-          Each object must have:
-          "question": "string",
-          "options": ["option1", "option2", ...],
-          "correct_index": integer (0-indexed representing the correct option),
-          "explanation": "short, simple reason for the correct answer",
-          "hint": "short, helpful clue or hint to guide the user to the correct choice without revealing it directly"
-          
-          Text: ${content.substring(0, 15000)}
-      `;
+  const prompt = `
+Task: Generate a ${difficulty} difficulty quiz containing ${count} questions based EXCLUSIVELY on the academic content in the SOURCE MATERIAL below.
+
+Rules:
+- ${typeRequirement}
+${focusRequirement ? `- ${focusRequirement}` : ""}
+${academicRequirement ? `- ${academicRequirement}` : ""}
+${syllabusRequirement}
+
+JSON Output Format (Strict JSON Array):
+[
+  {
+    "question": "Question text testing a concept from the source material",
+    "options": ["Option A", "Option B", "Option C", "Option D"],
+    "correct_index": 0,
+    "explanation": "Short reason for the correct choice",
+    "hint": "Helpful clue without revealing the answer"
+  }
+]
+
+SOURCE MATERIAL:
+<<<BEGIN_SOURCE_MATERIAL>>>
+${content.substring(0, 35000)}
+<<<END_SOURCE_MATERIAL>>>
+`;
 
   try {
-    const rawText = await callAIProvider(prompt);
+    const rawText = await callAIProvider(prompt, systemInstruction);
     console.log("AI Raw Response:", rawText);
 
-    const jsonMatch = rawText.match(/\[[\s\S]*\]/);
+    const cleanedText = rawText
+      .replace(/```json/gi, "")
+      .replace(/```/g, "")
+      .trim();
+
+    const jsonMatch = cleanedText.match(/\[[\s\S]*\]/);
     if (!jsonMatch) {
       throw new Error("AI did not return a valid JSON array");
     }
 
     const parsedQuiz = JSON.parse(jsonMatch[0]);
+    if (!Array.isArray(parsedQuiz) || parsedQuiz.length === 0) {
+      throw new Error("Parsed quiz array is empty or invalid");
+    }
+
     return parsedQuiz;
   } catch (error) {
     console.error("Detailed Error across AI providers:", error);
@@ -188,10 +218,17 @@ function normalizeText(content) {
 }
 
 function splitIntoSentences(content) {
+  const chunks = content
+    .split(/(?:\r?\n|•|[\.\!\?]\s+|;\s+|:\s+)/)
+    .map((s) => s.replace(/^[-\*\d\.\s]+/, "").trim())
+    .filter((s) => s.length >= 20 && !/^(page\s+\d+|university|department|course\s+code|credits|marks|semester)/i.test(s));
+
+  if (chunks.length > 0) return chunks;
+
   return content
     .split(/(?<=[.!?])\s+/)
     .map((sentence) => sentence.trim())
-    .filter((sentence) => sentence.length >= 35);
+    .filter((sentence) => sentence.length >= 20);
 }
 
 const STOP_WORDS = new Set([

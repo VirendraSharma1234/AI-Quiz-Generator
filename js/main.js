@@ -98,29 +98,81 @@ $(document).ready(function () {
     applyTheme(currentTheme === "dark" ? "light" : "dark");
   });
 
+  let fileParsingPromise = null;
+
+  async function extractTextFromPdf(file) {
+    $("#file-name-text").text(`Reading ${file.name}...`);
+    $("#file-name-badge").removeClass("d-none");
+
+    const reader = new FileReader();
+    return new Promise((resolve, reject) => {
+      reader.onload = async function () {
+        try {
+          const typedarray = new Uint8Array(this.result);
+          const pdf = await pdfjsLib.getDocument(typedarray).promise;
+          let text = "";
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const content = await page.getTextContent();
+            let pageText = "";
+            let lastY = null;
+
+            for (const item of content.items) {
+              if (!item.str) continue;
+              const currentY = item.transform ? item.transform[5] : null;
+
+              if (lastY !== null && currentY !== null && Math.abs(currentY - lastY) > 4) {
+                pageText += "\n";
+              } else if (item.hasEOL) {
+                pageText += "\n";
+              } else if (pageText.length > 0 && !pageText.endsWith(" ") && !pageText.endsWith("\n")) {
+                pageText += " ";
+              }
+
+              pageText += item.str;
+              if (currentY !== null) lastY = currentY;
+            }
+
+            text += `\n--- Page ${i} ---\n` + pageText;
+          }
+
+          extractedText = text.trim();
+          $("#file-name-text").text(`${file.name} (${pdf.numPages} ${pdf.numPages === 1 ? "page" : "pages"} loaded)`);
+          resolve(extractedText);
+        } catch (err) {
+          console.error("PDF Parsing Error:", err);
+          $("#file-name-text").text(`Error reading ${file.name}`);
+          showStatusMessage("Could not read PDF file. Please ensure it contains selectable text.", "danger");
+          reject(err);
+        }
+      };
+
+      reader.onerror = (err) => {
+        showStatusMessage("Failed to read file.", "danger");
+        reject(err);
+      };
+
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
   function handleFileSelected(file) {
     if (!file) return;
     $("#file-name-text").text(file.name);
     $("#file-name-badge").removeClass("d-none");
+    extractedText = "";
 
     if (file.type === "text/plain" || file.name.endsWith(".txt")) {
       const reader = new FileReader();
-      reader.onload = (e) => (extractedText = e.target.result);
-      reader.readAsText(file);
+      fileParsingPromise = new Promise((resolve) => {
+        reader.onload = (e) => {
+          extractedText = e.target.result;
+          resolve(extractedText);
+        };
+        reader.readAsText(file);
+      });
     } else if (file.type === "application/pdf" || file.name.endsWith(".pdf")) {
-      const reader = new FileReader();
-      reader.onload = async function () {
-        const typedarray = new Uint8Array(this.result);
-        const pdf = await pdfjsLib.getDocument(typedarray).promise;
-        let text = "";
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
-          const content = await page.getTextContent();
-          text += content.items.map((item) => item.str).join(" ") + "\n";
-        }
-        extractedText = text;
-      };
-      reader.readAsArrayBuffer(file);
+      fileParsingPromise = extractTextFromPdf(file);
     }
   }
 
@@ -149,6 +201,14 @@ $(document).ready(function () {
   });
 
   $("#generate-btn").on("click", async function () {
+    if (fileParsingPromise) {
+      try {
+        await fileParsingPromise;
+      } catch (err) {
+        console.warn("File parsing promise failed:", err);
+      }
+    }
+
     const formData = validateForm();
     if (!formData) return;
 
@@ -174,8 +234,8 @@ $(document).ready(function () {
       );
       startQuiz(formData.timeLimit);
     } catch (error) {
-      console.error(error);
-      showStatusMessage(getApiErrorMessage(error), "danger");
+      console.error("Quiz generation error:", error);
+      showStatusMessage(typeof getApiErrorMessage === "function" ? getApiErrorMessage(error) : (error.message || "Failed to generate quiz."), "danger");
       $("#hero-card").fadeIn(300);
       $("#loading-section").hide();
       $("#input-section").show();
