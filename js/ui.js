@@ -49,6 +49,10 @@ function validateForm() {
 
   let mainContent = textInput || extractedText;
 
+  if (!mainContent && typeof uploadedPdfBase64 !== "undefined" && uploadedPdfBase64) {
+    mainContent = `Attached PDF Document: ${uploadedPdfName || "DE Syllabus.pdf"}`;
+  }
+
   let sourceContent = mainContent;
 
   if (academicTopic || academicDegree || academicBranch || academicYear) {
@@ -67,8 +71,8 @@ function validateForm() {
   }
 
   if (!sourceContent || sourceContent.trim().length === 0) {
-    $("#file-input, #text-input, #academic-topic").addClass("is-invalid");
-    showStatusMessage("Please upload a PDF/text file, paste text, or enter an Academic Topic to generate a quiz.", "warning");
+    $("#text-input, #academic-topic").addClass("is-invalid");
+    showStatusMessage("Please paste text or enter an Academic Topic to generate a quiz.", "warning");
     return null;
   }
 
@@ -97,6 +101,7 @@ function validateForm() {
     practiceMode,
     proctoredMode,
     academicContext: { topic: academicTopic, degree: academicDegree, branch: academicBranch, year: academicYear },
+    pdfBase64: typeof uploadedPdfBase64 !== "undefined" ? uploadedPdfBase64 : null
   };
 }
 

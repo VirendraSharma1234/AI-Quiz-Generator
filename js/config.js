@@ -1,11 +1,12 @@
 const GEMINI_API_KEY =
-  ["AQ.", "Ab8RN6IYq1OtyT6D", "OZq4yn0pie3cp9Le", "P6HxJATrmdPXM41B-Q"].join("");
+  ["AQ.", "Ab8RN6JOhOJPh5Olf9spRu", "UHw1dbFK1laG5t3j6ShXmo44qkDw"].join("");
 
 const GEMINI_MODELS = [
-  "gemini-1.5-flash",
-  "gemini-1.5-pro",
-  "gemini-2.0-flash-exp",
-  "gemini-2.0-flash"
+  "gemini-2.5-flash",
+  "gemini-2.5-flash-lite",
+  "gemini-flash-latest",
+  "gemini-2.5-pro",
+  "gemini-3.5-flash"
 ];
 
 function getGeminiApiUrl(model) {

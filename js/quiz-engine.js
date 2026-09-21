@@ -1,4 +1,4 @@
-async function callGeminiAPI(prompt, systemInstruction = "") {
+async function callGeminiAPI(prompt, systemInstruction = "", pdfBase64 = null) {
   let lastError = null;
 
   for (const model of GEMINI_MODELS) {
@@ -7,8 +7,19 @@ async function callGeminiAPI(prompt, systemInstruction = "") {
         ? `[SYSTEM INSTRUCTION: ${systemInstruction}]\n\n${prompt}`
         : prompt;
 
+      const parts = [];
+      if (pdfBase64) {
+        parts.push({
+          inline_data: {
+            mime_type: "application/pdf",
+            data: pdfBase64
+          }
+        });
+      }
+      parts.push({ text: fullText });
+
       const payload = {
-        contents: [{ parts: [{ text: fullText }] }]
+        contents: [{ parts: parts }]
       };
       if (systemInstruction) {
         payload.system_instruction = { parts: [{ text: systemInstruction }] };
@@ -100,10 +111,10 @@ async function callGroqAPI(prompt, systemInstruction = "") {
   throw lastError || new Error("All Groq models failed");
 }
 
-async function callAIProvider(prompt, systemInstruction = "") {
+async function callAIProvider(prompt, systemInstruction = "", pdfBase64 = null) {
   try {
-    const geminiReply = await callGeminiAPI(prompt, systemInstruction);
-    console.log("Quiz generated via Gemini API");
+    const geminiReply = await callGeminiAPI(prompt, systemInstruction, pdfBase64);
+    console.log("Quiz generated via Gemini API (Multimodal PDF & Text)");
     return geminiReply;
   } catch (geminiError) {
     console.warn("Gemini API failed, seamlessly switching to Groq API...", geminiError);
@@ -119,7 +130,7 @@ async function callAIProvider(prompt, systemInstruction = "") {
   }
 }
 
-async function generateQuizFromAI(content, count, difficulty, questionType, focusArea, academicContext, isSyllabusMode) {
+async function generateQuizFromAI(content, count, difficulty, questionType, focusArea, academicContext, isSyllabusMode, pdfBase64 = null) {
   let typeRequirement = "";
   if (questionType === "tf") {
     typeRequirement = `Each question MUST be a True/False question. The "options" array must contain exactly ["True", "False"] and "correct_index" must be 0 for True or 1 for False.`;
@@ -185,7 +196,7 @@ ${content.substring(0, 35000)}
 `;
 
   try {
-    const rawText = await callAIProvider(prompt, systemInstruction);
+    const rawText = await callAIProvider(prompt, systemInstruction, pdfBase64);
     console.log("AI Raw Response:", rawText);
 
     const cleanedText = rawText

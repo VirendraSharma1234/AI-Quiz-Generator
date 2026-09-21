@@ -11,6 +11,8 @@ let quizHints = [];
 let isPracticeMode = false;
 let isProctoredMode = false;
 let isShuffled = true;
+let uploadedPdfBase64 = null;
+let uploadedPdfName = "";
 
 function startQuiz(timeLimitMinutes) {
   currentQuestionIndex = 0;
@@ -100,55 +102,106 @@ $(document).ready(function () {
 
   let fileParsingPromise = null;
 
+  function extractTextFromRawPdfBuffer(arrayBuffer) {
+    try {
+      const decoder = new TextDecoder("latin1");
+      const rawStr = decoder.decode(arrayBuffer);
+      
+      const matches = rawStr.match(/\(([^()\\]|\\[\s\S])*\)/g) || [];
+      let extracted = matches
+        .map(m => m.slice(1, -1).replace(/\\([0-7]{1,3})/g, (match, octal) => String.fromCharCode(parseInt(octal, 8))).replace(/\\(.)/g, "$1"))
+        .filter(str => str.trim().length > 2 && !/^[\d\s]+$/.test(str) && !/^\/[A-Z0-9]+$/i.test(str))
+        .join(" ");
+
+      if (extracted.trim().length < 30) {
+        const asciiMatches = rawStr.match(/[\x20-\x7E\n\r\t]{5,}/g) || [];
+        extracted = asciiMatches
+          .filter(str => !/^(obj|endobj|stream|endstream|xref|trailer|startxref|Catalog|Pages|Parent|Type|Font|Length|Filter|FlateDecode)/i.test(str.trim()))
+          .join(" ");
+      }
+
+      return extracted.replace(/\s+/g, " ").trim();
+    } catch (e) {
+      console.warn("Raw PDF buffer fallback failed:", e);
+      return "";
+    }
+  }
+
   async function extractTextFromPdf(file) {
-    $("#file-name-text").text(`Reading ${file.name}...`);
+    $("#file-name-text").text(`Parsing ${file.name}...`);
     $("#file-name-badge").removeClass("d-none");
 
-    const reader = new FileReader();
     return new Promise((resolve, reject) => {
+      const reader = new FileReader();
       reader.onload = async function () {
+        const arrayBuffer = this.result;
         try {
-          const typedarray = new Uint8Array(this.result);
-          const pdf = await pdfjsLib.getDocument(typedarray).promise;
-          let text = "";
+          const typedarray = new Uint8Array(arrayBuffer);
+          
+          let pdf;
+          try {
+            pdf = await pdfjsLib.getDocument({
+              data: typedarray,
+              cMapUrl: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/cmaps/",
+              cMapPacked: true,
+              standardFontDataUrl: "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/standard_fonts/"
+            }).promise;
+          } catch (docErr) {
+            console.error("pdfjsLib.getDocument error with CMaps:", docErr);
+            pdf = await pdfjsLib.getDocument(typedarray).promise;
+          }
+
+          let textParts = [];
           for (let i = 1; i <= pdf.numPages; i++) {
             const page = await pdf.getPage(i);
-            const content = await page.getTextContent();
-            let pageText = "";
-            let lastY = null;
+            const textContent = await page.getTextContent();
+            
+            let pageStrings = textContent.items
+              .map(item => item.str)
+              .filter(str => str && str.trim().length > 0);
 
-            for (const item of content.items) {
-              if (!item.str) continue;
-              const currentY = item.transform ? item.transform[5] : null;
-
-              if (lastY !== null && currentY !== null && Math.abs(currentY - lastY) > 4) {
-                pageText += "\n";
-              } else if (item.hasEOL) {
-                pageText += "\n";
-              } else if (pageText.length > 0 && !pageText.endsWith(" ") && !pageText.endsWith("\n")) {
-                pageText += " ";
-              }
-
-              pageText += item.str;
-              if (currentY !== null) lastY = currentY;
+            if (pageStrings.length > 0) {
+              textParts.push(`\n--- Page ${i} ---\n` + pageStrings.join(" "));
             }
-
-            text += `\n--- Page ${i} ---\n` + pageText;
           }
 
-          extractedText = text.trim();
-          if (extractedText.length === 0) {
-            $("#file-name-text").text(`No text found in ${file.name}`);
-            showStatusMessage("No selectable text could be extracted from this PDF. If it is an image/scanned document, please copy and paste the text directly into the text area.", "warning");
+          let fullExtractedText = textParts.join("\n").trim();
+
+          if (fullExtractedText.length === 0) {
+            console.log("PDF.js returned 0 text items. Running raw PDF binary stream fallback...");
+            fullExtractedText = extractTextFromRawPdfBuffer(arrayBuffer);
+          }
+
+          extractedText = fullExtractedText;
+
+          if (fullExtractedText.length === 0) {
+            const pageCountText = pdf && pdf.numPages ? ` (${pdf.numPages} ${pdf.numPages === 1 ? "page" : "pages"})` : "";
+            $("#file-name-text").text(`${file.name}${pageCountText} - Scanned PDF (Gemini OCR Active)`);
+            $("#file-name-badge").removeClass("bg-primary-subtle text-primary bg-danger-subtle text-danger").addClass("bg-info-subtle text-info border border-info-subtle");
+            showStatusMessage(`Scanned/Image PDF detected for "${file.name}". Gemini Multimodal OCR will read and process the entire document directly!`, "info");
           } else {
-            $("#file-name-text").text(`${file.name} (${pdf.numPages} ${pdf.numPages === 1 ? "page" : "pages"} loaded)`);
+            const pageCountText = pdf && pdf.numPages ? ` (${pdf.numPages} ${pdf.numPages === 1 ? "page" : "pages"} loaded)` : "";
+            $("#file-name-text").text(`${file.name}${pageCountText}`);
+            $("#file-name-badge").removeClass("bg-info-subtle text-info bg-danger-subtle text-danger").addClass("bg-primary-subtle text-primary");
+            $("#text-input").val(fullExtractedText);
+            showStatusMessage(`Loaded ${file.name} (${fullExtractedText.length} characters extracted).`, "success");
           }
-          resolve(extractedText);
+
+          resolve(fullExtractedText);
         } catch (err) {
           console.error("PDF Parsing Error:", err);
-          $("#file-name-text").text(`Error reading ${file.name}`);
-          showStatusMessage("Could not read PDF file. Please ensure it is a valid PDF document.", "danger");
-          reject(err);
+          let rawFallbackText = extractTextFromRawPdfBuffer(arrayBuffer);
+          if (rawFallbackText.length > 30) {
+            extractedText = rawFallbackText;
+            $("#file-name-text").text(`${file.name} (recovered)`);
+            $("#text-input").val(rawFallbackText);
+            showStatusMessage(`Loaded ${file.name} via raw stream recovery (${rawFallbackText.length} characters).`, "success");
+            resolve(rawFallbackText);
+          } else {
+            $("#file-name-text").text(`Error reading ${file.name}`);
+            showStatusMessage(`Failed to read PDF file (${err.message || "Unknown error"}).`, "danger");
+            reject(err);
+          }
         }
       };
 
@@ -161,6 +214,19 @@ $(document).ready(function () {
     });
   }
 
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result || "";
+        const base64 = result.includes(",") ? result.split(",")[1] : result;
+        resolve(base64);
+      };
+      reader.onerror = (err) => reject(err);
+      reader.readAsDataURL(file);
+    });
+  }
+
   function handleFileSelected(file) {
     if (!file) return;
     const fileName = file.name || "uploaded_file";
@@ -168,15 +234,19 @@ $(document).ready(function () {
 
     $("#file-name-text").text(fileName);
     $("#file-name-badge").removeClass("d-none");
-    extractedText = "";
 
-    if (file.type.includes("text") || lowerName.endsWith(".txt") || lowerName.endsWith(".md") || lowerName.endsWith(".csv")) {
+    if (lowerName.endsWith(".txt") || lowerName.endsWith(".md") || lowerName.endsWith(".csv") || file.type.includes("text")) {
+      uploadedPdfBase64 = null;
+      uploadedPdfName = "";
       const reader = new FileReader();
       fileParsingPromise = new Promise((resolve, reject) => {
         reader.onload = (e) => {
           extractedText = (e.target.result || "").trim();
+          $("#text-input").val(extractedText);
           if (!extractedText) {
             showStatusMessage("Uploaded text file is empty.", "warning");
+          } else {
+            showStatusMessage(`Loaded ${fileName} (${extractedText.length} characters).`, "success");
           }
           resolve(extractedText);
         };
@@ -184,6 +254,11 @@ $(document).ready(function () {
         reader.readAsText(file);
       });
     } else {
+      uploadedPdfName = fileName;
+      fileToBase64(file).then(b64 => {
+        uploadedPdfBase64 = b64;
+        console.log("PDF Base64 encoded successfully for native Gemini multimodal analysis");
+      }).catch(err => console.warn("Base64 conversion failed:", err));
       fileParsingPromise = extractTextFromPdf(file);
     }
   }
@@ -242,7 +317,8 @@ $(document).ready(function () {
         formData.questionType,
         formData.focusArea,
         formData.academicContext,
-        formData.syllabusMode
+        formData.syllabusMode,
+        formData.pdfBase64 || uploadedPdfBase64
       );
       startQuiz(formData.timeLimit);
     } catch (error) {
