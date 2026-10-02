@@ -347,6 +347,22 @@ function showResults() {
 
   renderReviewAccordion();
 
+  if (typeof syncQuizResultToDatabase === "function") {
+    const topicText = $("#academic-topic").val()?.trim() || "General Practice Assessment";
+    const diff = $("#difficulty").val() || "medium";
+    syncQuizResultToDatabase({
+      topic: topicText,
+      difficulty: diff,
+      scorePercent,
+      correctCount: correct,
+      incorrectCount: incorrect,
+      unattemptedCount: unattempted,
+      totalQuestions: quizData.length,
+      timeTakenSeconds: 0,
+      submissionType: "Completed Assessment"
+    });
+  }
+
   if (isShuffled) {
     $("#reattempt-quiz-btn").removeClass("d-none");
   } else {

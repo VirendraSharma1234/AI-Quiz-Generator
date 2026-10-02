@@ -205,16 +205,23 @@ ${content.substring(0, 35000)}
       .trim();
 
     const jsonMatch = cleanedText.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) {
-      throw new Error("AI did not return a valid JSON array");
+    let parsedQuiz;
+    try {
+      parsedQuiz = JSON.parse(jsonMatch[0]);
+    } catch (parseError) {
+      const sanitized = jsonMatch[0]
+        .replace(/,\s*([\]}])/g, "$1")
+        .replace(/[\u201C\u201D]/g, '"')
+        .replace(/[\u2018\u2019]/g, "'");
+      parsedQuiz = JSON.parse(sanitized);
     }
 
-    const parsedQuiz = JSON.parse(jsonMatch[0]);
-    if (!Array.isArray(parsedQuiz) || parsedQuiz.length === 0) {
+    const normalized = normalizeQuizItems(parsedQuiz);
+    if (!Array.isArray(normalized) || normalized.length === 0) {
       throw new Error("Parsed quiz array is empty or invalid");
     }
 
-    return parsedQuiz;
+    return normalized;
   } catch (error) {
     console.error("Detailed Error across AI providers:", error);
     const fallbackQuiz = generateQuizLocally(content, count, difficulty, questionType);
@@ -223,6 +230,66 @@ ${content.substring(0, 35000)}
     }
     return fallbackQuiz;
   }
+}
+
+function normalizeQuizItems(rawList) {
+  if (!Array.isArray(rawList)) return [];
+  return rawList.map((item, idx) => {
+    const questionText = item.question || item.question_text || item.text || `Question ${idx + 1}`;
+
+    let optionsArray = [];
+    if (Array.isArray(item.options)) {
+      optionsArray = item.options.map((opt) =>
+        typeof opt === "string" ? opt : opt.text || opt.value || JSON.stringify(opt)
+      );
+    } else if (item.options && typeof item.options === "object") {
+      optionsArray = ["A", "B", "C", "D", "E", "F"]
+        .filter((key) => key in item.options)
+        .map((key) => item.options[key]);
+      if (optionsArray.length === 0) {
+        optionsArray = Object.values(item.options);
+      }
+    } else {
+      optionsArray = ["Option A", "Option B", "Option C", "Option D"];
+    }
+
+    let correctIdx = 0;
+    if (typeof item.correct_index === "number") {
+      correctIdx = item.correct_index;
+    } else if (typeof item.correctIndex === "number") {
+      correctIdx = item.correctIndex;
+    } else if (typeof item.correctOption === "string") {
+      const letter = item.correctOption.trim().toUpperCase();
+      const letterMap = { A: 0, B: 1, C: 2, D: 3, E: 4, F: 5 };
+      if (letter in letterMap) {
+        correctIdx = letterMap[letter];
+      }
+    } else if (typeof item.answer === "string") {
+      const letter = item.answer.trim().toUpperCase();
+      const letterMap = { A: 0, B: 1, C: 2, D: 3, E: 4, F: 5 };
+      if (letter in letterMap) {
+        correctIdx = letterMap[letter];
+      } else {
+        const found = optionsArray.findIndex((opt) => opt.toLowerCase() === item.answer.toLowerCase());
+        if (found !== -1) correctIdx = found;
+      }
+    } else if (typeof item.correct_answer === "string") {
+      const found = optionsArray.findIndex((opt) => opt.toLowerCase() === item.correct_answer.toLowerCase());
+      if (found !== -1) correctIdx = found;
+    }
+
+    if (correctIdx < 0 || correctIdx >= optionsArray.length) {
+      correctIdx = 0;
+    }
+
+    return {
+      question: questionText,
+      options: optionsArray,
+      correct_index: correctIdx,
+      explanation: item.explanation || item.reason || "",
+      hint: item.hint || ""
+    };
+  });
 }
 
 function normalizeText(content) {

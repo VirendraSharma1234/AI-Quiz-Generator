@@ -12,7 +12,7 @@
 }
 
 .max-container {
-    max-width: 1000px;
+    max-width: 1140px;
     margin: 0 auto;
 }
 
@@ -73,9 +73,9 @@
 }
 
 .main-container {
-    max-width: 960px;
+    max-width: 1140px;
     margin: 0 auto;
-    padding: 104px 16px 40px;
+    padding: 104px 20px 48px;
 }
 
 .hero-card,
