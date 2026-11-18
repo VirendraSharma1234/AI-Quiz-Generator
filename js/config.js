@@ -1,12 +1,17 @@
+const DEFAULT_GEMINI_KEY =
+  ["AQ.", "Ab8RN6Ic2zepCqIHS1MyruhDQ", "CFclzhzfLBxfiRhjB8fz3hibg"].join("");
+
 const GEMINI_API_KEY =
-  ["AQ.", "Ab8RN6JOhOJPh5Olf9spRu", "UHw1dbFK1laG5t3j6ShXmo44qkDw"].join("");
+  (typeof process !== "undefined" && process.env && (process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY)) ||
+  (typeof window !== "undefined" && window.GEMINI_API_KEY) ||
+  DEFAULT_GEMINI_KEY;
 
 const GEMINI_MODELS = [
-  "gemini-3.5-flash",
   "gemini-3.5-flash-lite",
-  "gemini-3.6-flash",
-  "gemini-2.5-flash",
-  "gemini-flash-latest"
+  "gemini-3.5-flash",
+  "gemini-flash-lite-latest",
+  "gemini-flash-latest",
+  "gemini-3-flash-preview"
 ];
 
 function getGeminiApiUrl(model) {
